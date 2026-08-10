@@ -112,5 +112,47 @@
   "t": "🐱 3Cat",
   "a": 10.0,
   "cat": "Food & Drink"
+ },
+ {
+  "d": "8.7",
+  "t": "🎯 Target",
+  "a": 21.96,
+  "cat": "Groceries",
+  "n": "🧃🥛🍦🥥"
+ },
+ {
+  "d": "8.8",
+  "t": "🎂🍚 DKL Birthday",
+  "a": 41.04,
+  "cat": "Gifts",
+  "n": "CurryPizza House🍕"
+ },
+ {
+  "d": "8.8",
+  "t": "🎂🍚 DKL Birthday",
+  "a": 35.46,
+  "cat": "Gifts",
+  "n": "BHC Chicken🍗"
+ },
+ {
+  "d": "8.8",
+  "t": "🎂🍚 DKL Birthday",
+  "a": 116.54,
+  "cat": "Gifts",
+  "n": "Boiling Crab🦀"
+ },
+ {
+  "d": "8.8",
+  "t": "🎂🍚 DKL Birthday",
+  "a": 87.24,
+  "cat": "Gifts",
+  "n": "Dolans Uyghur🍢"
+ },
+ {
+  "d": "8.8",
+  "t": "🎂🍚 DKL Birthday",
+  "a": 30.45,
+  "cat": "Gifts",
+  "n": "Omomo🧋"
  }
 ]

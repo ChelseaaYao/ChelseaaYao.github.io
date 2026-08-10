@@ -1,9 +1,45 @@
 [
  {
-  "d": "3.1",
-  "t": "🛒 Costco",
-  "a": 26.46,
-  "cat": "Groceries"
+  "d": "3.2",
+  "t": "🛒 Amazon Fresh",
+  "a": 44.39,
+  "cat": "Groceries",
+  "n": "🍌🌭🍔🍟🍦🥔"
+ },
+ {
+  "d": "3.2",
+  "t": "🐾 Pet Treats",
+  "a": 13.88,
+  "cat": "Alice",
+  "n": "Amazon Fresh · dog + cat"
+ },
+ {
+  "d": "3.2",
+  "t": "💊 Melatonin",
+  "a": 4.88,
+  "cat": "Health",
+  "n": "Amazon Fresh"
+ },
+ {
+  "d": "3.3",
+  "t": "🛒 Amazon Fresh",
+  "a": 42.46,
+  "cat": "Groceries",
+  "n": "🥣🥛🍫🥤🌭🦃"
+ },
+ {
+  "d": "3.3",
+  "t": "🐾 Pet Foods",
+  "a": 9.93,
+  "cat": "Alice",
+  "n": "Amazon Fresh · dog + cat"
+ },
+ {
+  "d": "3.3",
+  "t": "💊 Vitamin D3",
+  "a": 5.12,
+  "cat": "Health",
+  "n": "Amazon Fresh"
  },
  {
   "d": "3.3",
@@ -34,6 +70,20 @@
  },
  {
   "d": "3.4",
+  "t": "🛒 Amazon Fresh",
+  "a": 15.19,
+  "cat": "Groceries",
+  "n": "🍗🌽🥕🍦🥛🧃"
+ },
+ {
+  "d": "3.4",
+  "t": "🐶 Dog Treats",
+  "a": 2.13,
+  "cat": "Alice",
+  "n": "Amazon Fresh · Milk-Bone"
+ },
+ {
+  "d": "3.4",
   "t": "🎬 AMC Membership",
   "a": 27.99,
   "cat": "Entertainment"
@@ -49,6 +99,20 @@
   "t": "📶 AT&T",
   "a": 36.66,
   "cat": "Bills & Utilities"
+ },
+ {
+  "d": "3.6",
+  "t": "🛒 Amazon Fresh",
+  "a": 52.0,
+  "cat": "Groceries",
+  "n": "🥤🍕🍦🥗🍞"
+ },
+ {
+  "d": "3.6",
+  "t": "🐶 Dog Foods",
+  "a": 8.82,
+  "cat": "Alice",
+  "n": "Amazon Fresh · Blue Buffalo + Rachael Ray"
  },
  {
   "d": "3.7",
@@ -94,15 +158,16 @@
   "card": "discover"
  },
  {
-  "d": "3.15",
-  "t": "🥬 99 Ranch",
-  "a": 11.36,
-  "cat": "Groceries"
+  "d": "3.13",
+  "t": "🛒 Costco",
+  "a": 40.93,
+  "cat": "Groceries",
+  "n": "🫧🍍🥬🍅"
  },
  {
   "d": "3.15",
-  "t": "🛒 Costco",
-  "a": 40.93,
+  "t": "🥬 99 Ranch",
+  "a": 11.36,
   "cat": "Groceries"
  },
  {
@@ -134,7 +199,7 @@
   "t": "🎂 Peter Birthday Gift",
   "a": 172.39,
   "cat": "Gifts",
-  "n": "唱片机"
+  "n": "Target · 唱片机"
  },
  {
   "d": "3.20",
@@ -155,10 +220,25 @@
   "cat": "Dine Out"
  },
  {
-  "d": "3.22",
+  "d": "3.21",
   "t": "🛒 Costco",
-  "a": 91.9,
-  "cat": "Groceries"
+  "a": 29.85,
+  "cat": "Groceries",
+  "n": "🍅🍄‍🟫🥬💧"
+ },
+ {
+  "d": "3.21",
+  "t": "💊 Turmeric",
+  "a": 33.01,
+  "cat": "Health",
+  "n": "Costco"
+ },
+ {
+  "d": "3.21",
+  "t": "🧻 Toilet Paper",
+  "a": 29.04,
+  "cat": "Home",
+  "n": "Costco"
  },
  {
   "d": "3.23",
@@ -197,7 +277,8 @@
   "d": "3.24",
   "t": "🛒 Albertsons",
   "a": 36.11,
-  "cat": "Groceries"
+  "cat": "Groceries",
+  "n": "🥤🧃🍿🍦🍓"
  },
  {
   "d": "3.25",

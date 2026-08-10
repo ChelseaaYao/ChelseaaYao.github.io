@@ -60,7 +60,8 @@
   "t": "🥬 99 Ranch",
   "a": 5.41,
   "cat": "Groceries",
-  "card": "discover"
+  "card": "discover",
+  "n": "🍮🍊"
  },
  {
   "d": "1.8",
@@ -83,10 +84,11 @@
   "n": "Dji action"
  },
  {
-  "d": "1.11",
+  "d": "1.10",
   "t": "🛒 Costco",
   "a": 51.73,
-  "cat": "Groceries"
+  "cat": "Groceries",
+  "n": "🥦🫐🍅🥒🧈🥐"
  },
  {
   "d": "1.11",
@@ -166,8 +168,23 @@
  {
   "d": "1.19",
   "t": "🛒 Costco",
-  "a": 61.93,
-  "cat": "Groceries"
+  "a": 51.44,
+  "cat": "Groceries",
+  "n": "🥬🍅🍓🍗🥐🍡"
+ },
+ {
+  "d": "1.19",
+  "t": "💊 Women's Multivitamin",
+  "a": 10.49,
+  "cat": "Health",
+  "n": "Costco"
+ },
+ {
+  "d": "1.19",
+  "t": "🛒 Costco",
+  "a": 16.97,
+  "cat": "Groceries",
+  "n": "🫐🍇"
  },
  {
   "d": "1.20",
@@ -209,8 +226,16 @@
  {
   "d": "1.25",
   "t": "🛒 Costco",
-  "a": 46.13,
-  "cat": "Groceries"
+  "a": 12.98,
+  "cat": "Groceries",
+  "n": "💧🍰"
+ },
+ {
+  "d": "1.25",
+  "t": "🦴 Dog Toys",
+  "a": 33.15,
+  "cat": "Alice",
+  "n": "Costco"
  },
  {
   "d": "1.25",
@@ -226,10 +251,18 @@
   "card": "joint"
  },
  {
-  "d": "1.28",
+  "d": "1.26",
   "t": "🎯 Target",
-  "a": 39.11,
-  "cat": "Groceries"
+  "a": 11.09,
+  "cat": "Groceries",
+  "n": "🥛🫧"
+ },
+ {
+  "d": "1.26",
+  "t": "🚰 Water Bottle",
+  "a": 28.02,
+  "cat": "Home",
+  "n": "Target · Bink"
  },
  {
   "d": "1.28",
