@@ -88,7 +88,7 @@
     const hs = [];
     hs.push(stat("CURRENT", `${f2(last.w)}<i>${unit}</i>`, dshow(last.d)));
     if (prev) hs.push(stat("VS LAST", delta(last.w - prev.w), "from " + dshow(prev.d), last.w - prev.w));
-    if (avg30p !== null) hs.push(stat("30-DAY AVG", f2(avg30), `prev 30d ${f2(avg30p)} (${delta(avg30 - avg30p)})`, avg30 - avg30p));
+    if (avg30p !== null) hs.push(stat("30-DAY AVG", f2(avg30), `prev 30d ${f2(avg30p)} ( ${avg30 - avg30p <= 0 ? "⬇️" : "⬆️"} ${f2(Math.abs(avg30 - avg30p))} )`, avg30 - avg30p));
     if (goal) hs.push(stat("TO GOAL", f1(last.w - goal), `goal ${f1(goal)} ${unit}`));
     if (DATA.bmi) hs.push(stat("BMI", f1(DATA.bmi), DATA.bmi < 18.5 ? "underweight <18.5" : DATA.bmi < 24 ? "normal 18.5–24" : "over 24"));
     if (DATA.bmr) hs.push(stat("BMR", `${DATA.bmr}<i>kcal</i>`, `${DATA.profile.height}cm · ${DATA.profile.age}y`));
@@ -116,9 +116,13 @@
     // 趋势图范围切换
     const draw = r => {
       const from = r === 1 ? dnum(last.d) - 92 * DAY : r === 2 ? dnum(last.d) - 30 * DAY : -Infinity;
-      document.getElementById("wchart").innerHTML = chart(es.filter(e => dnum(e.d) >= from), goal, sdates);
+      const w = document.getElementById("wchart");
+      w.innerHTML = chart(es.filter(e => dnum(e.d) >= from), goal, sdates);
+      w.scrollLeft = w.scrollWidth;   // 移动端横滑时默认停在最新数据
     };
     draw(1);   // 默认近 3 月，全程太密
+    // 其余横滑图（Cycle 时间轴）也默认滚到最右侧
+    box.querySelectorAll(".chart-wrap").forEach(el => { el.scrollLeft = el.scrollWidth; });
     box.querySelectorAll(".rt").forEach(el => el.addEventListener("click", () => {
       box.querySelectorAll(".rt").forEach(x => x.classList.toggle("on", x === el));
       draw(+el.dataset.r);
@@ -213,7 +217,7 @@
     starts.filter(p => dnum(p) >= t0 && dnum(p) <= t1).forEach(p => {
       const xx = x(dnum(p));
       s += `<line x1="${xx}" y1="${T}" x2="${xx}" y2="${H - B}" class="pmark"/>
-            <text x="${xx}" y="${H - 6}" text-anchor="middle" class="pflower">🌸</text>`;
+            <text x="${xx}" y="${T - 6}" text-anchor="middle" class="pflower">🌸</text>`;
     });
     // 目标线
     if (goal) s += `<line x1="${L}" y1="${y(goal)}" x2="${W - R}" y2="${y(goal)}" class="goalln"/>
@@ -255,25 +259,38 @@
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const since = Math.round((today - ddate(lastS)) / DAY);
     const over = Math.round((today - nxt) / DAY);
-    return { cyc, avg, mn, mx, avgP, lastS, nxt, today, since, over };
+
+    // 今天=本周期第几天；排卵日≈下次经期前 14 天，前 5 天+后 1 天为易孕窗口
+    const cd = since + 1;
+    const ovu = Math.round(avg) - 14;
+    const phase = cd <= Math.round(avgP) ? "Period"
+      : cd < ovu - 5 ? "Follicular"
+      : cd <= ovu + 1 ? "Fertile"
+      : cd <= Math.round(avg) ? "Luteal" : "Late";
+    return { cyc, avg, mn, mx, avgP, lastS, nxt, today, since, over, cd, ovu, phase };
   }
 
   // 周期统计 chips（Cycle 卡片时间轴上方）
   function cycleChips(starts){
-    const { avg, mn, mx, avgP, nxt } = cycleCalc(starts);
-    return `<div class="chips">${[["AVG CYCLE", f1(avg) + " days"], ["AVG PERIOD", f1(avgP) + " days"],
+    const { avg, mn, mx, avgP, nxt, cd, phase, over } = cycleCalc(starts);
+    const phc = { Period: "phP", Follicular: "phF", Fertile: "phO", Luteal: "phL", Late: "phX" }[phase];
+    // 窄屏时 NEXT EST. 独占一行，补上倒计时填空（.cleft 仅移动端显示）
+    const left = -over;
+    const cleft = `<span class="cleft">· ${left > 0 ? `in <b>${left}</b> days` : left === 0 ? "today 🌸" : `<b>${-left}</b> days past`}</span>`;
+    return `<div class="chips">${[["CYCLE DAY", "Day " + cd], ["PHASE", phase, "", phc],
+        ["AVG CYCLE", f1(avg) + " days"], ["AVG PERIOD", f1(avgP) + " days"],
         ["MIN CYCLE", mn + " days"], ["MAX CYCLE", mx + " days"],
-        ["NEXT EST.", `${nxt.getMonth() + 1}.${nxt.getDate()}`, "nx"]]
-      .map(([k, v, c]) => `<div class="chip${c ? " " + c : ""}"><span class="ck">${k}</span><span class="cv">${v}</span></div>`).join("")}</div>`;
+        ["NEXT EST.", `${nxt.getMonth() + 1}.${nxt.getDate()}${cleft}`, "nx"]]
+      .map(([k, v, c, vc]) => `<div class="chip${c ? " " + c : ""}"><span class="ck">${k}</span><span class="cv${vc ? " " + vc : ""}">${v}</span></div>`).join("")}</div>`;
   }
 
   function periodCard(starts){
-    const { cyc, lastS, nxt, today, since, over } = cycleCalc(starts);
-    const pred = `<div class="pred">Last ${dshow(lastS)} · ${since} days ago&ensp;·&ensp;next est. <b>${nxt.getMonth() + 1}.${nxt.getDate()}</b>${over > 0 ? `<span class="late">(${over} days past — log it 🌸)</span>` : ""}</div>`;
-
+    const { cyc, nxt, today } = cycleCalc(starts);
     return `<div class="card"><h2>🌸&ensp;Cycle<span class="gp">${starts.length} logged</span></h2>
       ${cycleChips(starts)}
-      <div class="chart-wrap">${periodTimeline(starts, cyc, nxt, today)}</div>${pred}</div>`;
+      <div class="chart-wrap">${periodTimeline(starts, cyc, nxt, today)}</div>
+      <div class="legend"><span><i class="lo"></i>Fertile window</span><span><i class="lod"></i>Ovulation (est.)</span></div>
+      ${starts.length > 1 ? hormoneSection(starts) : ""}</div>`;
   }
 
   // ── 经期时间轴：横条长度=持续天数 + 间隔天数 + 今天线 + 预测幽灵块 ──
@@ -291,6 +308,15 @@
         s += `<line x1="${xx}" y1="24" x2="${xx}" y2="${H - 26}" class="grid"/>
               <text x="${xx}" y="${H - 10}" text-anchor="middle" class="ax">${MN[d.getMonth() + 1]}</text>`;
       }
+    // 排卵期色块：排卵日≈下段经期开始前 14 天，前 5 天+后 1 天为易孕窗口；开放周期按预测（est）
+    const fertile = (ovuT, est) => {
+      const od = new Date(ovuT);
+      return `<rect x="${x(ovuT - 5 * DAY).toFixed(1)}" y="${BY}" width="${(x(ovuT + 2 * DAY) - x(ovuT - 5 * DAY)).toFixed(1)}" height="${BH}" rx="5" class="oblock${est ? " est" : ""}" data-tip="Fertile window${est ? " (est.)" : ""}"/>
+              <rect x="${x(ovuT).toFixed(1)}" y="${BY - 3}" width="${(x(ovuT + DAY) - x(ovuT)).toFixed(1)}" height="${BH + 6}" rx="3" class="oday${est ? " est" : ""}" data-tip="Ovulation${est ? " (est.)" : ""} · ${od.getMonth() + 1}.${od.getDate()}"/>`;
+    };
+    starts.slice(1).forEach(p => { s += fertile(dnum(p.d) - 14 * DAY, false); });
+    s += fertile(nxt.getTime() - 14 * DAY, true);
+
     // 经期色块 + 间隔标注
     starts.forEach((p, i) => {
       const xs = x(dnum(p.d)), xe = x(dnum(p.d) + p.days * DAY);
@@ -311,6 +337,44 @@
     s += `<line x1="${xt}" y1="16" x2="${xt}" y2="${H - 26}" class="todayln"/>
           <text x="${xt}" y="12" text-anchor="middle" class="todaylab">today</text>`;
     return `<svg class="chart" viewBox="0 0 ${W} ${H}">${s}</svg>`;
+  }
+
+  // ── 激素变化（Cycle 卡片内小节）：教科书式典型曲线，按平均周期/经期长度缩放（示意图，非实测）──
+  function hormoneSection(starts){
+    const { avg, avgP, cd } = cycleCalc(starts);
+    const CL = Math.round(avg), P = Math.round(avgP), ovu = CL - 14;
+    const W = 720, H = 216, L = 16, R = 16, T = 26, B = 52;
+    const x = d => L + d / CL * (W - L - R);
+    const y = v => T + (1 - v) * (H - T - B);
+    const g = (t, m, sd) => Math.exp(-((t - m) ** 2) / (2 * sd * sd));
+    const midLu = ovu + (CL - ovu) / 2;   // 黄体中期（孕激素、雌激素第二峰）
+    const E  = t => 0.14 + 0.72 * g(t, ovu - 1.5, 2.6) + 0.42 * g(t, midLu, 4.5);
+    const LH = t => 0.10 + 0.82 * g(t, ovu - 0.5, 1.1);
+    const PG = t => 0.08 + 0.74 * g(t, midLu, 4.2);
+    const path = f => { const pts = []; for (let t = 0; t <= CL; t += 0.5) pts.push(`${x(t).toFixed(1)},${y(f(t)).toFixed(1)}`); return pts.join(" "); };
+
+    const f0 = Math.max(P, ovu - 5);   // 相位分界防重叠（周期极短时兜底）
+    let s = `<rect x="${x(0)}" y="${T}" width="${(x(P) - x(0)).toFixed(1)}" height="${H - T - B}" class="hbg hp"/>
+      <rect x="${x(f0)}" y="${T}" width="${(x(ovu + 2) - x(f0)).toFixed(1)}" height="${H - T - B}" class="hbg ho"/>`;
+    const SY = H - B + 14;
+    [[0, P, "经期", "Period", "hp"], [P, f0, "卵泡期", "Follicular", "hf"],
+     [f0, ovu + 2, "排卵期", "Ovulation", "ho"], [ovu + 2, CL, "黄体期", "Luteal", "hl"]].forEach(([a, b, cn, en, c]) => {
+      const cx = ((x(a) + x(b)) / 2).toFixed(1);
+      s += `<rect x="${x(a).toFixed(1)}" y="${SY}" width="${(x(b) - x(a)).toFixed(1)}" height="15" rx="4" class="hseg ${c}"/>
+            <text x="${cx}" y="${SY + 11}" text-anchor="middle" class="hen">${en}</text>
+            <text x="${cx}" y="${SY + 30}" text-anchor="middle" class="hlab">${cn}</text>`;
+    });
+    s += `<polyline class="hcurve hE" points="${path(E)}"/>
+          <polyline class="hcurve hL" points="${path(LH)}"/>
+          <polyline class="hcurve hP" points="${path(PG)}"/>`;
+    if (cd <= CL){   // 超出平均周期（Late）时不画今天线
+      const xt = x(cd - 0.5);
+      s += `<line x1="${xt}" y1="${T - 4}" x2="${xt}" y2="${SY + 10}" class="todayln"/>
+            <text x="${xt}" y="${T - 9}" text-anchor="middle" class="todaylab">today · day ${cd}</text>`;
+    }
+    return `<div class="hdiv"></div>
+      <div class="chart-wrap"><svg class="chart nosc" viewBox="0 0 ${W} ${H}">${s}</svg></div>
+      <div class="legend cen"><span><i class="hle"></i>雌激素</span><span><i class="hll"></i>黄体生成素</span><span><i class="hlp"></i>孕激素</span></div>`;
   }
 
   // ── 月均体重：小折线图（按年份筛选），点按环比涨跌着色，数值直接标在点上 ──
@@ -356,7 +420,7 @@
     });
     return `<div class="card"><h2>📊&ensp;Monthly Avg
         <span class="rtabs">${tabs}</span><span class="gp" style="margin-left:14px">avg <span class="gt">${f2(tot)}</span></span></h2>
-      <div class="chart-wrap"><svg class="chart" viewBox="0 0 ${W} ${H}">${s}</svg></div></div>`;
+      <div class="chart-wrap"><svg class="chart nosc" viewBox="0 0 ${W} ${H}">${s}</svg></div></div>`;
   }
 
   // ── 迷你月历（参考薄荷健康）：周一开始，日期居中、体重在下，经期日期红字 ──
