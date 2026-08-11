@@ -87,12 +87,27 @@
     // ── 顶部大数字 ──
     const hs = [];
     hs.push(stat("CURRENT", `${f2(last.w)}<i>${unit}</i>`, dshow(last.d)));
-    if (prev) hs.push(stat("VS LAST", delta(last.w - prev.w), "from " + dshow(prev.d), last.w - prev.w));
     if (avg30p !== null) hs.push(stat("30-DAY AVG", f2(avg30), `prev 30d ${f2(avg30p)} ( ${avg30 - avg30p <= 0 ? "⬇️" : "⬆️"} ${f2(Math.abs(avg30 - avg30p))} )`, avg30 - avg30p));
     if (goal) hs.push(stat("TO GOAL", f1(last.w - goal), `goal ${f1(goal)} ${unit}`));
     if (DATA.bmi) hs.push(stat("BMI", f1(DATA.bmi), DATA.bmi < 18.5 ? "underweight <18.5" : DATA.bmi < 24 ? "normal 18.5–24" : "over 24"));
     if (DATA.bmr) hs.push(stat("BMR", `${DATA.bmr}<i>kcal</i>`, `${DATA.profile.height}cm · ${DATA.profile.age}y`));
     document.getElementById("hs-row").innerHTML = hs.join("");
+
+    // ── 对比行：较前一天 / 上周同日 / 上月同日（无当日记录时取往前最近一条）──
+    const cmpBox = document.getElementById("cmp-row");
+    if (cmpBox){
+      const atOrBefore = t => { let r = null; for (const e of es){ if (dnum(e.d) <= t) r = e; else break; } return r; };
+      const lastT = dnum(last.d);
+      cmpBox.innerHTML = [["VS YESTERDAY", atOrBefore(lastT - DAY)],
+          ["VS LAST WEEK", atOrBefore(lastT - 7 * DAY)],
+          ["VS LAST MONTH", atOrBefore(lastT - 30 * DAY)]]
+        .filter(([, e]) => e)
+        .map(([k, e]) => {
+          const df = last.w - e.w;
+          return `<div class="cs"><span class="cs-v ${df <= 0 ? "good" : "bad"}">${df <= 0 ? "⬇️" : "⬆️"} ${f2(Math.abs(df))}</span>
+            <span class="cs-k">${k}</span><span class="cs-sub">(${dshow(e.d)})</span></div>`;
+        }).join("");
+    }
 
     // Logs 默认选中当前月；当月还没数据就退到最近有数据的月份
     const months = monthsOf(es);
@@ -404,7 +419,8 @@
     }
     // 总平均参考线（数值放卡片标题，不占图面）+ Max/Min 月份圆环标记
     const tot = avgs.reduce((t, v) => t + v, 0) / avgs.length;
-    s += `<line x1="${L}" y1="${y(tot)}" x2="${W - R}" y2="${y(tot)}" class="avgln"/>`;
+    s += `<line x1="${L}" y1="${y(tot)}" x2="${W - R}" y2="${y(tot)}" class="avgln"/>
+          <text x="${W - R}" y="${y(tot) - 7}" text-anchor="end" class="avglab">avg ${f2(tot)}</text>`;
     const iMax = avgs.indexOf(Math.max(...avgs)), iMin = avgs.indexOf(Math.min(...avgs));
     if (ks.length > 1)
       s += `<circle cx="${x(iMax)}" cy="${y(avgs[iMax])}" r="7.5" class="ring max"/>
@@ -415,11 +431,11 @@
       const cls = df === null ? "" : df <= 0 ? " good" : " bad";
       const anchor = i === 0 ? "start" : i === ks.length - 1 ? "end" : "middle";   // 首尾错开，避免压到坐标轴
       s += `<circle cx="${x(i)}" cy="${y(avgs[i])}" r="4.5" class="mdot${cls}" data-tip="${MN[+k.split(".")[1]]} ${yr} · avg ${f2(avgs[i])} ${UNIT} · ${M[k].length} logs${df === null ? "" : " · " + delta(df)}"/>
-            <text x="${x(i)}" y="${y(avgs[i]) - 10}" text-anchor="${anchor}" class="mval${cls}">${f2(avgs[i])}</text>
+            <text x="${x(i)}" y="${y(avgs[i]) - 10}" text-anchor="${anchor}" class="mval${cls}${i % 2 ? " alt" : ""}">${f2(avgs[i])}</text>
             <text x="${x(i)}" y="${H - 10}" text-anchor="middle" class="mmon">${MN[+k.split(".")[1]]}</text>`;
     });
     return `<div class="card"><h2>📊&ensp;Monthly Avg
-        <span class="rtabs">${tabs}</span><span class="gp" style="margin-left:14px">avg <span class="gt">${f2(tot)}</span></span></h2>
+        <span class="rtabs">${tabs}</span></h2>
       <div class="chart-wrap"><svg class="chart nosc" viewBox="0 0 ${W} ${H}">${s}</svg></div></div>`;
   }
 

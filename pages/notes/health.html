@@ -28,8 +28,9 @@
   .subtitle{font-size:12px;color:var(--muted);letter-spacing:1.5px;margin:5px 0 0;}
 
   /* 顶部大数字 */
-  #hs-row{margin:24px 0 24px;display:flex;align-items:flex-end;gap:26px;flex-wrap:wrap;}
-  .hs + .hs{border-left:1px dashed var(--line);padding-left:26px;}
+  #hs-row{margin:24px 0 16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:end;}
+  .hs{min-width:0;}
+  .hs + .hs{border-left:1px dashed var(--line);padding-left:24px;}
   .hs-label{font-size:12px;color:var(--muted);letter-spacing:1.5px;}
   .hs-num{font-family:var(--serif);font-size:38px;font-weight:700;letter-spacing:.5px;line-height:1.15;
     background:linear-gradient(92deg,var(--cd) 10%,var(--jp) 55%,var(--bj) 95%);
@@ -38,6 +39,15 @@
   .hs-num.good{background:none;-webkit-background-clip:unset;background-clip:unset;color:var(--sy);}
   .hs-num.bad{background:none;-webkit-background-clip:unset;background-clip:unset;color:var(--jp);}
   .hs-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  /* 对比行：较昨日 / 上周同日 / 上月同日 —— 一条基线对齐的小字横排 */
+  #cmp-row{display:flex;flex-wrap:wrap;gap:6px 30px;align-items:baseline;margin:4px 0 28px;}
+  .cs{display:flex;align-items:baseline;gap:8px;min-width:0;}
+  .cs-k{font-size:11px;color:var(--muted);letter-spacing:1.2px;}
+  .cs-v{font-family:var(--serif);font-size:15px;font-weight:700;}
+  .cs-v.good{color:var(--sy);}
+  .cs-v.bad{color:var(--jp);}
+  .cs-sub{font-size:10.5px;color:var(--muted);}
 
   .card{position:relative;overflow:hidden;background:var(--paper);border:1px solid var(--line);
     border-radius:14px;padding:6px 18px 12px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
@@ -70,6 +80,7 @@
   .chart .pmark{stroke:var(--jp);stroke-width:1;stroke-dasharray:3 3;opacity:.55;}
   .chart .pflower{font-size:9px;}
   .chart .avgln{stroke:#9aa1ab;stroke-width:1;stroke-dasharray:4 4;opacity:.65;}
+  .chart .avglab{fill:var(--bj);font-size:10.5px;letter-spacing:.5px;font-weight:700;}
   .chart .ring{fill:none;stroke-width:1.5;}
   .chart .ring.max{stroke:var(--jp);}
   .chart .ring.min{stroke:var(--sy);}
@@ -207,17 +218,20 @@
   @media(max-width:600px){
     body{padding:20px 12px 48px;}
     h1{font-size:24px;}
-    /* 大数字：CURRENT 独占一整行放大，其余两列网格，虚线分行分列 */
-    #hs-row{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:18px 0 20px;}
-    .hs{padding:10px 0;}
+    /* 大数字：CURRENT 独占首行放大，其余三个等分一行；stretch 让竖虚线顶到上下横线 */
+    #hs-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:18px 0 0;align-items:stretch;}
+    .hs{padding:10px 0 12px;min-width:0;}
     .hs + .hs{border-left:none;padding-left:0;}
-    .hs:first-child{grid-column:1/-1;padding-top:0;}
+    .hs:first-child{grid-column:1/-1;padding-top:0;border-bottom:1px dashed var(--line);padding-bottom:12px;}
     .hs:first-child .hs-num{font-size:36px;}
-    .hs:nth-child(2n+1):not(:first-child){border-left:1px dashed var(--line);padding-left:18px;}
-    .hs:nth-child(n+2){border-top:1px dashed var(--line);}
-    .hs:last-child:nth-child(even){grid-column:1/-1;padding-bottom:0;}
-    .hs-num{font-size:27px;}
-    .hs-sub{font-size:10.5px;}
+    .hs:nth-child(n+3){border-left:1px dashed var(--line);padding-left:12px;}
+    .hs-num{font-size:22px;}
+    .hs-sub{font-size:9.5px;}
+    /* 对比行沿用桌面的小字横排，换行自适应；上方补虚线分隔 */
+    #cmp-row{gap:4px 18px;margin-bottom:22px;border-top:1px dashed var(--line);padding-top:12px;}
+    .cs-k{font-size:10px;}
+    .cs-v{font-size:14px;}
+    .cs-sub{font-size:9.5px;}
     .row{gap:8px;}
     .row .d{min-width:92px;font-size:12px;}
     .row .w{min-width:88px;}
@@ -233,10 +247,13 @@
     .chart.nosc .mmon{font-size:16px;}
     .chart.nosc .hen{display:none;}
     .chart.nosc .hlab{font-size:15px;}
-    /* 周期 chips 两列网格，NEXT EST. 独占一行 */
-    .chips{grid-auto-flow:row;grid-template-columns:1fr 1fr;gap:8px;}
-    .chip{min-width:0;padding:8px 6px;}
-    .chip.nx{grid-column:1/-1;flex-direction:row;justify-content:center;gap:10px;align-items:baseline;}
+    .chart.nosc .avglab{font-size:15px;}
+    /* 缩放后数值标签上下交错，避免相互遮挡 */
+    .chart.nosc .mval.alt{transform:translateY(32px);}
+    /* 周期 chips 三列两行，NEXT EST. 独占一行 */
+    .chips{grid-auto-flow:row;grid-template-columns:repeat(3,1fr);gap:8px;}
+    .chip{min-width:0;padding:8px 4px;}
+    .chip.nx{grid-column:1/-1;}
     .chip .cleft{display:inline;}
     /* 月统计条 2×2：AVG+CHANGE 一排，MAX+MIN 一排 */
     .mstats{flex-wrap:wrap;padding:6px 4px;margin:10px 4px 14px;}
@@ -259,6 +276,7 @@
     </div>
     <div class="subtitle" id="sub-label"></div>
     <div id="hs-row"></div>
+    <div id="cmp-row"></div>
   </header>
 
   <div id="health"></div>
