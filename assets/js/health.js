@@ -154,8 +154,8 @@
     // 记录列表月份切换：All=按月分组全列，选中某月=迷你月历 + 当月明细
     const drawRecs = mk => {
       document.getElementById("reclist").innerHTML = mk
-        ? calmini(es, starts, mk) + rows(es.filter(e => e.d.startsWith(mk + ".")), sdates, false)
-        : rows(es, sdates, true);
+        ? calmini(es, starts, mk) + rows(es.filter(e => e.d.startsWith(mk + ".")), starts, false)
+        : rows(es, starts, true);
     };
     drawRecs(mk0);
     box.querySelectorAll(".mt").forEach(el => el.addEventListener("click", () => {
@@ -480,9 +480,16 @@
     return `<div class="calwrap"><div class="calgrid">${s}</div></div>${stats}`;
   }
 
-  // ── 记录列表（日期降序），grouped=按月分组；经期开始日标 🌸 ──
+  // ── 记录列表（日期降序），grouped=按月分组；经期内的日期标红 ──
   function rows(sel, starts, grouped){
-    const PS = new Set(starts);
+    const PS = new Set();   // 经期覆盖的所有日期（开始日起 days 天）
+    starts.forEach(p => {
+      const [y, m, d] = p.d.split(".").map(Number);
+      for (let i = 0; i < p.days; i++){
+        const dt = new Date(y, m - 1, d + i);
+        PS.add(`${dt.getFullYear()}.${dt.getMonth() + 1}.${dt.getDate()}`);
+      }
+    });
     const out = [];
     let mon = "";
     sel.slice().reverse().forEach(e => {
@@ -496,10 +503,10 @@
       const cls = df === null ? "" : df <= 0 ? " good" : " bad";
       const dt = ddate(e.d);
       out.push(`<div class="row">
-        <span class="d">${dshow(e.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
+        <span class="d${PS.has(e.d) ? " pd" : ""}">${dshow(e.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
         <span class="w">${f2(e.w)}</span>
         <span class="df${cls}">${df === null ? "—" : delta(df)}</span>
-        <span class="n">${PS.has(e.d) ? "🌸 " : ""}${e.n || ""}</span></div>`);
+        <span class="n">${e.n || ""}</span></div>`);
     });
     return out.join("");
   }
