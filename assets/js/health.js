@@ -463,7 +463,7 @@
     for (let i = 0; i < firstWd; i++) s += `<div class="cday"></div>`;
     for (let d = 1; d <= nDays; d++)
       s += `<div class="cday${d === td ? " today" : ""}${PS.has(d) ? " period" : ""}"><span class="cn">${d}</span>${
-        byDay[d] !== undefined ? `<span class="dsum">${f1(byDay[d])}</span>` : ""}</div>`;
+        byDay[d] !== undefined ? `<span class="dsum">${f2(byDay[d])}</span>` : ""}</div>`;
     for (let t = firstWd + nDays; t % 7 !== 0; t++) s += `<div class="cday"></div>`;   // 补齐末行，网格线不缺角
 
     // 本月统计条：平均 / 最大 / 最小 / 变化（首末记录差）
