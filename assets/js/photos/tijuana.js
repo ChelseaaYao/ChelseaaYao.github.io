@@ -5,7 +5,7 @@ const GALLERY = {
   dir: "../../photos/travels/202607-tijuana/",
   photos: [
     { file:"20260703-01-tijuana.jpg", date:"7.3.2026" },
-    { file:"20260703-02-tijuana.jpg", date:"7.3.2026" },
+    { file:"20260703-02-Tijuana.jpg", date:"7.3.2026" },
     { file:"20260703-03-tijuana.jpg", date:"7.3.2026" },
     { file:"20260703-04-tijuana.jpg", date:"7.3.2026" },
     { file:"20260703-05-tijuana.jpg", date:"7.3.2026" },

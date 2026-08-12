@@ -27,7 +27,7 @@ const DESCRIPTIONS = {
 
   // ── tijuana ──
   "20260703-01-tijuana.jpg": "Tacos El Franc 🌮",
-  "20260703-02-tijuana.jpg": "Mercado Hidalgo 🎪",
+  "20260703-02-Tijuana.jpg": "",
   "20260703-03-tijuana.jpg": "CECUT 🕌",
   "20260703-04-tijuana.jpg": "",
   "20260703-05-tijuana.jpg": "BookStore in Pasaje Rodríguez 📚",
