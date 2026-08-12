@@ -9,12 +9,14 @@
   if (!box) return;
 
   const base = new URL("../data/health/", document.currentScript.src);
+  // 线上走 GATE 解密 .enc 密文；本地免密预览（无 gate.js）直接读明文 JSON
+  const load = f => window.GATE
+    ? window.GATE.json(new URL(`${f}.enc`, base))
+    : fetch(new URL(f, base)).then(r => r.json());
   let RAW = null;
-  fetch(new URL("index.json", base))
-    .then(r => r.json())
-    .then(idx => Promise.all(idx.months.map(m =>
-      fetch(new URL(`${m}.json`, base)).then(r => r.json())
-    )).then(files => { RAW = { ...idx, entries: files.flat() }; render(); }))
+  load("index.json")
+    .then(idx => Promise.all(idx.months.map(m => load(`${m}.json`)))
+      .then(files => { RAW = { ...idx, entries: files.flat() }; render(); }))
     .catch(() => {
       box.innerHTML = '<div class="empty">Failed to load — open via the website, not file:// 🌿</div>';
     });

@@ -1,2 +1,12 @@
 assets/data/ledger/*.CSV
 assets/data/ledger/*.csv
+
+# 敏感数据只在本地保留明文，线上只发 .enc 密文（scripts/encrypt-data.js 生成）
+assets/data/health/*.json
+assets/data/ledger/*.json
+assets/data/*/.salt
+scripts/.gate-secrets.json
+
+# 免密预览副本（由 health.html 去掉 gate 生成，仅本地用）
+pages/notes/health-preview.html
+pages/notes/health-preview2.html

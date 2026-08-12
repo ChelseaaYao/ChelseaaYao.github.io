@@ -11,11 +11,13 @@
   const dayOf = i => +i.d.split(".")[1];
 
   const base = new URL("../data/ledger/", document.currentScript.src);
-  fetch(new URL("index.json", base))
-    .then(r => r.json())
-    .then(idx => Promise.all(idx.months.map(m =>
-      fetch(new URL(`${m}.json`, base)).then(r => r.json())
-    )).then(files => init(idx, files.flat())))
+  // gate 加密模式下走 GATE 解密 .enc 密文；否则直接读明文 JSON
+  const load = f => window.GATE
+    ? window.GATE.json(new URL(`${f}.enc`, base))
+    : fetch(new URL(f, base)).then(r => r.json());
+  load("index.json")
+    .then(idx => Promise.all(idx.months.map(m => load(`${m}.json`)))
+      .then(files => init(idx, files.flat())))
     .catch(() => {
       box.innerHTML = '<div class="empty">数据加载失败 —— 本地 file:// 打开无法读取 JSON，请通过网站访问 📒</div>';
     });
