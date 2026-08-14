@@ -15,8 +15,10 @@
     : fetch(new URL(f, base)).then(r => r.json());
   let RAW = null;
   load("index.json")
-    .then(idx => Promise.all(idx.months.map(m => load(`${m}.json`)))
-      .then(files => { RAW = { ...idx, entries: files.flat() }; render(); }))
+    .then(idx => Promise.all([
+      Promise.all(idx.months.map(m => load(`${m}.json`))),
+      load("workouts.json").catch(() => []),
+    ]).then(([files, workouts]) => { RAW = { ...idx, entries: files.flat(), workouts }; render(); }))
     .catch(() => {
       box.innerHTML = '<div class="empty">Failed to load — open via the website, not file:// 🌿</div>';
     });
@@ -54,11 +56,20 @@
   const DAY = 86400000;
   let ES_ALL = [];   // 全量记录（升序），供 rows 计算环比
   let UNIT = "kg";
+  let WLOGS = [];    // 运动记录（Apple Fitness 手动同步）
+  let WDAYS = {};    // 日期 → {类型: kcal}（同日按类型分开记）
+  const wparts = o => Object.entries(o).map(([t, k]) => `${t === "strength" ? "🏋️" : "🏃"}${k}`);
   const f1 = n => (Math.round(n * 10) / 10).toFixed(1);
   const f2 = n => n.toFixed(2);
   const delta = (n, p = f2) => (n > 0 ? "+" : "−") + p(Math.abs(n));
 
   function init(DATA){
+    WLOGS = DATA.workouts || [];
+    WDAYS = {};
+    WLOGS.forEach(w => {
+      const o = WDAYS[w.d] = WDAYS[w.d] || {};
+      o[w.type] = (o[w.type] || 0) + w.kcal;
+    });
     const unit = DATA.unit || "kg";
     const goal = DATA.goal;
     const es = (DATA.entries || []).slice().sort((a, b) => dnum(a.d) - dnum(b.d));
@@ -125,10 +136,14 @@
       <div class="legend"><span><i class="lw"></i>Weight</span><span><i class="lm"></i>7-pt avg</span>${starts.length ? '<span><i class="lp"></i>Period</span>' : ""}${goal ? '<span><i class="lg"></i>Goal</span>' : ""}</div></div>
       ${starts.length ? periodCard(starts) : ""}
       <div id="mcard">${monthCard(es, +last.d.split(".")[0])}</div>
-      <div class="card"><h2>📋&ensp;Logs<span class="gp">${es.length} entries</span></h2>
+      <div class="card"><h2>📋&ensp;Logs
+        <span class="gp" id="lg-count">${es.length} entries</span>
+        <span class="rtabs" style="margin-left:14px"><span class="lt on" data-p="w">Weight</span><span class="lt" data-p="k">Workouts</span></span></h2>
         <div class="mtabs">${["All", ...months].map((k, i) =>
           `<span class="mt${(i ? k : "") === mk0 ? " on" : ""}" data-m="${i ? k : ""}">${i ? MN[+k.split(".")[1]] : "All"}</span>`).join("")}</div>
-        <div id="reclist"></div></div>`;
+        <div id="calbox"></div>
+        <div id="lg-weight"><div id="reclist"></div></div>
+        <div id="lg-workout" style="display:none"></div></div>`;
 
     // 趋势图范围切换
     const draw = r => {
@@ -153,11 +168,33 @@
       }));
     bindYr();
 
-    // 记录列表月份切换：All=按月分组全列，选中某月=迷你月历 + 当月明细
+    // Logs 双开关：Weight / Workouts 各自独立点亮，亮谁显示谁，可同时显示（至少留一个）
+    const ltSync = () => {
+      const wOn = box.querySelector('.lt[data-p="w"]').classList.contains("on");
+      const kOn = box.querySelector('.lt[data-p="k"]').classList.contains("on");
+      document.getElementById("lg-weight").style.display = wOn ? "" : "none";
+      document.getElementById("lg-workout").style.display = kOn ? "" : "none";
+      // 月历只显示点亮项的数据（has-w=体重+经期，has-k=运动）
+      const cb = document.getElementById("calbox");
+      cb.classList.toggle("has-w", wOn);
+      cb.classList.toggle("has-k", kOn);
+      document.getElementById("lg-count").textContent =
+        [wOn ? `${es.length} entries` : "", kOn ? `${WLOGS.length} workouts` : ""].filter(Boolean).join(" · ");
+    };
+    box.querySelectorAll(".lt").forEach(el => el.addEventListener("click", () => {
+      if (el.classList.contains("on") && box.querySelectorAll(".lt.on").length === 1) return;
+      el.classList.toggle("on");
+      ltSync();
+    }));
+    ltSync();
+
+    // 记录列表月份切换：All=按月分组全列，选中某月=迷你月历（共享）+ 两个清单各自过滤
     const drawRecs = mk => {
+      document.getElementById("calbox").innerHTML = mk ? calmini(es, starts, mk) : "";
       document.getElementById("reclist").innerHTML = mk
-        ? calmini(es, starts, mk) + rows(es.filter(e => e.d.startsWith(mk + ".")), starts, false)
+        ? rows(es.filter(e => e.d.startsWith(mk + ".")), starts, false)
         : rows(es, starts, true);
+      document.getElementById("lg-workout").innerHTML = wrows(mk);
     };
     drawRecs(mk0);
     box.querySelectorAll(".mt").forEach(el => el.addEventListener("click", () => {
@@ -235,6 +272,10 @@
       const xx = x(dnum(p));
       s += `<line x1="${xx}" y1="${T}" x2="${xx}" y2="${H - B}" class="pmark"/>
             <text x="${xx}" y="${T - 6}" text-anchor="middle" class="pflower">🌸</text>`;
+    });
+    // 训练日标记（贴 x 轴的绿点，悬停显示当日消耗）
+    Object.keys(WDAYS).filter(d => dnum(d) >= t0 && dnum(d) <= t1).forEach(d => {
+      s += `<circle cx="${x(dnum(d)).toFixed(1)}" cy="${H - B - 5}" r="3.2" class="wdot" data-tip="${dshow(d)} · ${wparts(WDAYS[d]).join(" + ")} kcal"/>`;
     });
     // 目标线
     if (goal) s += `<line x1="${L}" y1="${y(goal)}" x2="${W - R}" y2="${y(goal)}" class="goalln"/>
@@ -461,9 +502,12 @@
     const td = now.getFullYear() === y && now.getMonth() === m - 1 ? now.getDate() : 0;
     let s = ["M","T","W","T","F","S","S"].map((w, i) => `<div class="cw${i >= 5 ? " wk" : ""}">${w}</div>`).join("");
     for (let i = 0; i < firstWd; i++) s += `<div class="cday"></div>`;
-    for (let d = 1; d <= nDays; d++)
+    for (let d = 1; d <= nDays; d++){
+      const wk = WDAYS[`${y}.${m}.${d}`];
       s += `<div class="cday${d === td ? " today" : ""}${PS.has(d) ? " period" : ""}"><span class="cn">${d}</span>${
-        byDay[d] !== undefined ? `<span class="dsum">${f2(byDay[d])}</span>` : ""}</div>`;
+        byDay[d] !== undefined ? `<span class="dsum">${f2(byDay[d])}</span>` : ""}${
+        wk ? `<span class="wsum">${wparts(wk).join(" ")}</span>` : ""}</div>`;
+    }
     for (let t = firstWd + nDays; t % 7 !== 0; t++) s += `<div class="cday"></div>`;   // 补齐末行，网格线不缺角
 
     // 本月统计条：平均 / 最大 / 最小 / 变化（首末记录差）
@@ -472,14 +516,37 @@
     if (days.length){
       const ws = days.map(d => byDay[d]);
       const chg = ws[ws.length - 1] - ws[0];
+      const mw = WLOGS.filter(w => w.d.startsWith(mk + "."));   // 当月运动
       stats = `<div class="mstats">
         <div class="ms"><span class="k">AVG</span><b class="hl">${f2(ws.reduce((s, v) => s + v, 0) / ws.length)}</b></div>
         <div class="ms"><span class="k">MAX</span><b>${f2(Math.max(...ws))}</b></div>
         <div class="ms"><span class="k">MIN</span><b>${f2(Math.min(...ws))}</b></div>
         <div class="ms"><span class="k">CHANGE</span><b class="${chg <= 0 ? "good" : "bad"}">${delta(chg)}</b></div>
+        ${mw.length ? `<div class="ms"><span class="k">BURNED · ${mw.length}×</span><b class="wk">${mw.reduce((s, w) => s + w.kcal, 0)}<i>kcal</i></b></div>` : ""}
       </div>`;
     }
     return `<div class="calwrap"><div class="calgrid">${s}</div></div>${stats}`;
+  }
+
+  // ── 运动清单（日期降序，按月分组，月头带小计）；mk=只看某月 ──
+  function wrows(mk){
+    const logs = mk ? WLOGS.filter(w => w.d.startsWith(mk + ".")) : WLOGS;
+    if (!logs.length) return '<div class="empty">No workouts this month 🏃</div>';
+    const out = [];
+    let mon = "";
+    logs.slice().sort((a, b) => dnum(a.d) - dnum(b.d)).reverse().forEach(w => {
+      const m = w.d.split(".").slice(0, 2).join(".");
+      if (m !== mon){
+        mon = m;
+        const mws = WLOGS.filter(x => x.d.startsWith(m + "."));
+        out.push(`<div class="mhead">${m.split(".")[0]} · ${MN[+m.split(".")[1]]}<span class="mhr">${mws.length}× · ${mws.reduce((s, x) => s + x.kcal, 0)} kcal</span></div>`);
+      }
+      const dt = ddate(w.d);
+      out.push(`<div class="row"><span class="d">${dshow(w.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
+        <span class="w">${w.type === "strength" ? "🏋️ Strength" : "🏃 Stepper"}</span>
+        <span class="df wkk">${w.kcal} kcal</span><span class="n"></span></div>`);
+    });
+    return out.join("");
   }
 
   // ── 记录列表（日期降序），grouped=按月分组；经期内的日期标红 ──
@@ -502,12 +569,15 @@
       }
       const i = ES_ALL.indexOf(e);
       const df = i > 0 ? e.w - ES_ALL[i - 1].w : null;
-      const cls = df === null ? "" : df <= 0 ? " good" : " bad";
+      const zero = df !== null && Math.abs(df) < 0.005;
+      const cls = df === null || zero ? "" : df <= 0 ? " good" : " bad";
       const dt = ddate(e.d);
+      const wk = WDAYS[e.d];
+      const wico = wk ? `<span class="wico" data-tip="${wparts(wk).join(" + ")} kcal">${Object.keys(wk).map(t => t === "strength" ? "🏋️" : "🏃").join("")}</span>` : "";
       out.push(`<div class="row">
-        <span class="d${PS.has(e.d) ? " pd" : ""}">${dshow(e.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
+        <span class="d${PS.has(e.d) ? " pd" : ""}">${dshow(e.d)}<span class="dwk">${WK[dt.getDay()]}</span>${wico}</span>
         <span class="w">${f2(e.w)}</span>
-        <span class="df${cls}">${df === null ? "—" : delta(df)}</span>
+        <span class="df${cls}">${df === null ? "—" : zero ? "0.00" : delta(df)}</span>
         <span class="n">${e.n || ""}</span></div>`);
     });
     return out.join("");
