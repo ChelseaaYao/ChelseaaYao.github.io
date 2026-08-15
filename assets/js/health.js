@@ -142,8 +142,10 @@
         <div class="mtabs">${["All", ...months].map((k, i) =>
           `<span class="mt${(i ? k : "") === mk0 ? " on" : ""}" data-m="${i ? k : ""}">${i ? MN[+k.split(".")[1]] : "All"}</span>`).join("")}</div>
         <div id="calbox"></div>
-        <div id="lg-weight"><div id="reclist"></div></div>
-        <div id="lg-workout" style="display:none"></div></div>`;
+        <div id="lg-wrap">
+          <div id="lg-weight"><div id="reclist"></div></div>
+          <div id="lg-workout" style="display:none"></div>
+        </div></div>`;
 
     // 趋势图范围切换
     const draw = r => {
@@ -214,15 +216,38 @@
     tip.className = "tip";
     document.body.appendChild(tip);
     box.addEventListener("mousemove", e => {
-      const t = e.target.closest("[data-tip]");
+      let t = e.target.closest("[data-tip]");
+      // 体重图内任意位置悬停：竖线 + 提示吸附到最近的数据点
+      const svg = e.target.closest("svg.wchart");
+      document.querySelectorAll(".xhair").forEach(l => { if (!svg || !svg.contains(l)) l.style.display = "none"; });
+      if (svg && !t){
+        let best = null, bd = Infinity;
+        svg.querySelectorAll(".hit").forEach(c => {
+          const r = c.getBoundingClientRect();
+          const d = Math.abs(r.left + r.width / 2 - e.clientX);
+          if (d < bd){ bd = d; best = c; }
+        });
+        if (best) t = best;
+      }
+      if (svg && t && t.hasAttribute("cx")){
+        const l = svg.querySelector(".xhair");
+        if (l){
+          l.setAttribute("x1", t.getAttribute("cx"));
+          l.setAttribute("x2", t.getAttribute("cx"));
+          l.style.display = "";
+        }
+      }
       if (t){
-        tip.textContent = t.dataset.tip;
+        tip.innerHTML = t.dataset.tip;   // data-tip 允许带简单标签（全部由本文件生成）
         tip.style.left = e.clientX + 14 + "px";
         tip.style.top = e.clientY + 16 + "px";
         tip.classList.add("on");
       } else tip.classList.remove("on");
     });
-    box.addEventListener("mouseleave", () => tip.classList.remove("on"));
+    box.addEventListener("mouseleave", () => {
+      tip.classList.remove("on");
+      document.querySelectorAll(".xhair").forEach(l => { l.style.display = "none"; });
+    });
   }
 
   const monthsOf = es => [...new Set(es.map(e => e.d.split(".").slice(0, 2).join(".")))]
@@ -299,9 +324,10 @@
     });
     // 透明悬停热区（无论画不画点都能悬停出提示）
     es.forEach(e => {
-      s += `<circle cx="${x(dnum(e.d))}" cy="${y(e.w)}" r="8" class="hit" data-tip="${e.d.split(".").slice(1).join(".")} ${WK[ddate(e.d).getDay()]} · ${f2(e.w)} ${UNIT}"/>`;
+      s += `<circle cx="${x(dnum(e.d))}" cy="${y(e.w)}" r="8" class="hit" data-tip="${e.d.split(".").slice(1).join(".")} ${WK[ddate(e.d).getDay()]}&#10;<b class='tv'>${f2(e.w)} ${UNIT}</b>"/>`;
     });
-    return `<svg class="chart" viewBox="0 0 ${W} ${H}">${s}</svg>`;
+    s += `<line class="xhair" x1="0" x2="0" y1="${T}" y2="${H - B}" style="display:none"/>`;
+    return `<svg class="chart wchart" viewBox="0 0 ${W} ${H}">${s}</svg>`;
   }
 
   // ── 生理周期卡：周期统计 + 每段周期条 + 下次预测 ──
@@ -473,7 +499,7 @@
       const df = i ? avgs[i] - avgs[i - 1] : null;
       const cls = df === null ? "" : df <= 0 ? " good" : " bad";
       const anchor = i === 0 ? "start" : i === ks.length - 1 ? "end" : "middle";   // 首尾错开，避免压到坐标轴
-      s += `<circle cx="${x(i)}" cy="${y(avgs[i])}" r="4.5" class="mdot${cls}" data-tip="${MN[+k.split(".")[1]]} ${yr} · avg ${f2(avgs[i])} ${UNIT} · ${M[k].length} logs${df === null ? "" : " · " + delta(df)}"/>
+      s += `<circle cx="${x(i)}" cy="${y(avgs[i])}" r="4.5" class="mdot${cls}" data-tip="${MN[+k.split(".")[1]]} ${yr}&#10;avg <b class='tv'>${f2(avgs[i])} ${UNIT}</b>&#10;${M[k].length} logs${df === null ? "" : ` · <b class='${df <= 0 ? "tg" : "tb"}'>${delta(df)}</b>`}"/>
             <text x="${x(i)}" y="${y(avgs[i]) - 10}" text-anchor="${anchor}" class="mval${cls}${i % 2 ? " alt" : ""}">${f2(avgs[i])}</text>
             <text x="${x(i)}" y="${H - 10}" text-anchor="middle" class="mmon">${MN[+k.split(".")[1]]}</text>`;
     });
@@ -528,7 +554,21 @@
     return `<div class="calwrap"><div class="calgrid">${s}</div></div>${stats}`;
   }
 
-  // ── 运动清单（日期降序，按月分组，月头带小计）；mk=只看某月 ──
+  // 某月消耗与上月同期对比（当前月按"过到第几天"截断上月，历史月全月对全月）
+  function burnCmp(mk){
+    const [y, m] = mk.split(".").map(Number);
+    const now = new Date();
+    const cutoff = (y === now.getFullYear() && m === now.getMonth() + 1) ? now.getDate() : 31;
+    const pmk = m === 1 ? `${y - 1}.12` : `${y}.${m - 1}`;
+    const psum = WLOGS.filter(w => w.d.startsWith(pmk + ".") && +w.d.split(".")[2] <= cutoff)
+      .reduce((s, w) => s + w.kcal, 0);
+    const csum = WLOGS.filter(w => w.d.startsWith(mk + ".")).reduce((s, w) => s + w.kcal, 0);
+    if (!psum || !csum) return "";
+    const up = csum >= psum;
+    return `<span class="bcmp ${up ? "up" : "dn"}">${up ? "⬆️" : "⬇️"} ${Math.abs(csum - psum)} vs ${MN[+pmk.split(".")[1]]}</span>`;
+  }
+
+  // ── 运动清单（日期降序，按月分组，月头带小计+环比）；mk=只看某月 ──
   function wrows(mk){
     const logs = mk ? WLOGS.filter(w => w.d.startsWith(mk + ".")) : WLOGS;
     if (!logs.length) return '<div class="empty">No workouts this month 🏃</div>';
@@ -539,12 +579,12 @@
       if (m !== mon){
         mon = m;
         const mws = WLOGS.filter(x => x.d.startsWith(m + "."));
-        out.push(`<div class="mhead">${m.split(".")[0]} · ${MN[+m.split(".")[1]]}<span class="mhr">${mws.length}× · ${mws.reduce((s, x) => s + x.kcal, 0)} kcal</span></div>`);
+        out.push(`<div class="mhead">${m.split(".")[0]} · ${MN[+m.split(".")[1]]}<span class="mhr">${mws.length}× · ${mws.reduce((s, x) => s + x.kcal, 0)} kcal${burnCmp(m)}</span></div>`);
       }
       const dt = ddate(w.d);
       out.push(`<div class="row"><span class="d">${dshow(w.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
-        <span class="w">${w.type === "strength" ? "🏋️ Strength" : "🏃 Stepper"}</span>
-        <span class="df wkk">${w.kcal} kcal</span><span class="n"></span></div>`);
+        <span class="w wt">${w.type === "strength" ? "🏋️ Strength" : "🏃 Stepper"}</span>
+        <span class="df wkk">${w.kcal} kcal</span></div>`);
     });
     return out.join("");
   }
@@ -573,11 +613,12 @@
       const cls = df === null || zero ? "" : df <= 0 ? " good" : " bad";
       const dt = ddate(e.d);
       const wk = WDAYS[e.d];
-      const wico = wk ? `<span class="wico" data-tip="${wparts(wk).join(" + ")} kcal">${Object.keys(wk).map(t => t === "strength" ? "🏋️" : "🏃").join("")}</span>` : "";
       out.push(`<div class="row">
-        <span class="d${PS.has(e.d) ? " pd" : ""}">${dshow(e.d)}<span class="dwk">${WK[dt.getDay()]}</span>${wico}</span>
+        <span class="d${PS.has(e.d) ? " pd" : ""}">${dshow(e.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
         <span class="w">${f2(e.w)}</span>
         <span class="df${cls}">${df === null ? "—" : zero ? "0.00" : delta(df)}</span>
+        <span class="wq">${wk ? Object.entries(wk).map(([t, k]) =>
+          t === "strength" ? `🏋️ Strength ${k}` : `🏃 Stepper ${k}`).join(" · ") : ""}</span>
         <span class="n">${e.n || ""}</span></div>`);
     });
     return out.join("");
