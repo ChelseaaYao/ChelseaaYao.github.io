@@ -312,15 +312,19 @@
       <stop offset="100%" stop-color="#f28e54" stop-opacity="0"/></linearGradient></defs>` + s;
     s += `<polygon class="area" points="${pts.join(" ")} ${x(t1).toFixed(1)},${H - B} ${x(t0).toFixed(1)},${H - B}"/>`;
     // 7 次滑动均线（窗口=最近 7 条记录）
-    const ma = es.map((e, i) => {
+    const maVals = es.map((e, i) => {
       const win = es.slice(Math.max(0, i - 6), i + 1);
-      return `${x(dnum(e.d)).toFixed(1)},${y(win.reduce((s, v) => s + v.w, 0) / win.length).toFixed(1)}`;
+      return win.reduce((s, v) => s + v.w, 0) / win.length;
     });
-    s += `<polyline class="ma" points="${ma.join(" ")}"/>`;
+    s += `<polyline class="ma" points="${es.map((e, i) => `${x(dnum(e.d)).toFixed(1)},${y(maVals[i]).toFixed(1)}`).join(" ")}"/>`;
     // 体重折线 + 点
     s += `<polyline class="line" points="${pts.join(" ")}"/>`;
     if (es.length <= 80) es.forEach(e => {   // 点太密时只画线，更清爽
       s += `<circle cx="${x(dnum(e.d))}" cy="${y(e.w)}" r="3" class="dot"/>`;
+    });
+    // 均线热区放在体重热区之前，重叠时体重点优先响应；不参与竖线吸附（类名不是 hit）
+    es.forEach((e, i) => {
+      s += `<circle cx="${x(dnum(e.d))}" cy="${y(maVals[i])}" r="7" class="mahit" data-tip="${e.d.split(".").slice(1).join(".")} ${WK[ddate(e.d).getDay()]}&#10;7-pt avg <b class='tm'>${f2(maVals[i])} ${UNIT}</b>"/>`;
     });
     // 透明悬停热区（无论画不画点都能悬停出提示）
     es.forEach(e => {
