@@ -322,9 +322,10 @@
     if (es.length <= 80) es.forEach(e => {   // 点太密时只画线，更清爽
       s += `<circle cx="${x(dnum(e.d))}" cy="${y(e.w)}" r="3" class="dot"/>`;
     });
-    // 透明悬停热区（无论画不画点都能悬停出提示）：体重 + 7 点均值一起显示
+    // 透明悬停热区（无论画不画点都能悬停出提示）：体重 + 7 点均值一起显示，箭头=与前一条记录比
+    const trend = (cur, prev) => prev === undefined || cur === prev ? "" : cur > prev ? " ⬆️" : " ⬇️";
     es.forEach((e, i) => {
-      s += `<circle cx="${x(dnum(e.d))}" cy="${y(e.w)}" r="8" class="hit" data-tip="${e.d.split(".").slice(1).join(".")} ${WK[ddate(e.d).getDay()]}&#10;<b class='tv'>${f2(e.w)} ${UNIT}</b>&#10;<b class='tm'>${f2(maVals[i])} ${UNIT}</b>"/>`;
+      s += `<circle cx="${x(dnum(e.d))}" cy="${y(e.w)}" r="8" class="hit" data-tip="${e.d.split(".").slice(1).join(".")} ${WK[ddate(e.d).getDay()]}&#10;<b class='tv'>${f2(e.w)} ${UNIT}</b>${trend(e.w, es[i - 1]?.w)}&#10;<b class='tm'>${f2(maVals[i])} ${UNIT}</b>${trend(maVals[i], maVals[i - 1])}"/>`;
     });
     s += `<line class="xhair" x1="0" x2="0" y1="${T}" y2="${H - B}" style="display:none"/>`;
     return `<svg class="chart wchart" viewBox="0 0 ${W} ${H}">${s}</svg>`;
