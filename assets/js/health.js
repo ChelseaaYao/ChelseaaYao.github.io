@@ -324,7 +324,7 @@
     });
     // 均线热区放在体重热区之前，重叠时体重点优先响应；不参与竖线吸附（类名不是 hit）
     es.forEach((e, i) => {
-      s += `<circle cx="${x(dnum(e.d))}" cy="${y(maVals[i])}" r="7" class="mahit" data-tip="${e.d.split(".").slice(1).join(".")} ${WK[ddate(e.d).getDay()]}&#10;7-pt avg <b class='tm'>${f2(maVals[i])} ${UNIT}</b>"/>`;
+      s += `<circle cx="${x(dnum(e.d))}" cy="${y(maVals[i])}" r="7" class="mahit" data-tip="${e.d.split(".").slice(1).join(".")} ${WK[ddate(e.d).getDay()]}&#10;<b class='tm'>${f2(maVals[i])} ${UNIT}</b>"/>`;
     });
     // 透明悬停热区（无论画不画点都能悬停出提示）
     es.forEach(e => {
