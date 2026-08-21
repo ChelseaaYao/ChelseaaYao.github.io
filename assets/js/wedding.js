@@ -125,7 +125,7 @@ const GUEST_LIST = {
   note: "🐼 成都",   // 目前只记成都的
   groups: [
     { city: "👭 Friends", guests: [
-      "王琴心", "曾莹洁",
+      "王琴心", "曾莹洁", "孙兴发",
       { name: "杨潞钰", n: 2 },
       { name: "祁麟", n: 2 },
     ] },
