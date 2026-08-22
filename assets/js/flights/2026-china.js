@@ -25,7 +25,7 @@ const FLIGHT_GROUPS = [
         day:"12.4.2026 Friday",
         fares:[
           { name:"Economy", via:"Google", perks:"🎒 随身小包+登机箱（17.6 lbs）· 🧳 免费托运 ×1（50.7 lbs · plus one ➕ $200）· 💰 取消/改签需付费",
-            prices:[{ on:"7.30", price:552.50 }], pick:false },
+            prices:[{ on:"7.30", price:552.50 }, { on:"8.21", price:576 }], pick:false },
           { name:"Economy", via:"Trip.com", perks:"🧳 免费托运 ×1（50 lbs）· 💰 取消 $250 起 · 改签 $130 起",
             prices:[{ on:"7.30", price:556 }], pick:false },
           { name:"Economy · Exclusive", via:"Trip.com", perks:"🧳 免费托运 ×2（各 50 lbs）· ✅ 免改签费 · 💰 取消 $150 起",
