@@ -35,7 +35,7 @@ const FLIGHT_GROUPS = [
             dur:"2h 45m", info:"CZ3401 · 经济舱 · Boeing 737 · 小食" },
         ],
         baggage:{
-          note:"以上为每人额度 · 行李直挂成都，广州转机无需重新托运",
+          note:"每人均享以上额度 · 行李直挂成都，转机无需提取",
           items:[
             { icon:"🎒", name:"Personal item", allow:"×1", size:"随身小包" },
             { icon:"👜", name:"Carry-on", allow:"1 × 8 kg", size:"55 × 40 × 20 cm" },
