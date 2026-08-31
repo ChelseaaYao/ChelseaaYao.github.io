@@ -16,8 +16,16 @@
 const FLIGHT_GROUPS = [
   {
     route: "🌴 LAX → 🐼 成都",
-    date: "12.4 – 12.6 · 落地 TFU 天府",
+    date: "12.4 – 12.6 · 落地 CTU 双流",
     options: [
+      {
+        airline:"China Southern", code:"CZ", color:"#0066b3", flight:"CZ328 ➡️ CZ3401",
+        dep:"22:00", depAp:"LAX", arr:"11:15", arrAp:"CTU", plus:"+2", depD:"12.4", arrD:"12.6",
+        dur:"21h 15m",
+        tags:["转机 CAN 广州 · 停留 2h 35m","🛬 双流 CTU T1","✅ 已出票"],
+        pick:true,
+        day:"12.4.2026 Friday",
+      },
       {
         airline:"Sichuan Airlines", code:"3U", color:"#c0392b", logo:"../../assets/icons/airlines/3U.png", flight:"3U3838",
         dep:"21:30", depAp:"LAX", arr:"08:10", arrAp:"TFU", plus:"+2", depD:"12.4", arrD:"12.6",
