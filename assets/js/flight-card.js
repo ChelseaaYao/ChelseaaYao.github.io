@@ -36,6 +36,19 @@
     .map(p => `<span class="pk">${p}</span>`)
     .join('<span class="psep">·</span>');
 
+  // 分段行程时间轴：数据 o.segments = [ 航段或转机, ... ]
+  // 航段 { dep, depAp, depD, arr, arrAp, arrD, dur, info }；转机 { transfer:"文案" }
+  const segmentsHTML = segs => !segs ? "" :
+    `<div class="itin">` + segs.map(s => s.transfer
+      ? `<div class="itr">${s.transfer}</div>`
+      : `<div class="seg">` +
+          `<div class="irow"><span class="idot"></span><b>${s.dep}</b>` +
+            `${s.depD ? `<span class="idate">${s.depD}</span>` : ""}<span class="iapt">${s.depAp}</span></div>` +
+          `<div class="iinfo">${s.info || ""}${s.dur ? `<span class="idur">${s.dur}</span>` : ""}</div>` +
+          `<div class="irow"><span class="idot"></span><b>${s.arr}</b>` +
+            `${s.arrD ? `<span class="idate">${s.arrD}</span>` : ""}<span class="iapt">${s.arrAp}</span></div>` +
+        `</div>`).join("") + `</div>`;
+
   // 行李额面板：三栏（随身 / 手提 / 托运），数据 o.baggage = { note, items:[{icon,name,allow,size}] }
   const baggageHTML = bg => !bg ? "" :
     `<div class="bag"><div class="bag-grid">` +
@@ -139,8 +152,8 @@
           `</div>`
         ).join("") + `</div>` : "";
 
-        // 行李额面板常驻展开，不参与折叠
-        const bagHTML = baggageHTML(o.baggage);
+        // 分段行程 + 行李额面板常驻展开，不参与折叠
+        const bagHTML = segmentsHTML(o.segments) + baggageHTML(o.baggage);
         // 有票档 → 卡片收起时只显示最低价（多档带"起"），点击展开「渠道 × 时间」价格矩阵
         if (o.fares && o.fares.length){
           const latest = o.fares

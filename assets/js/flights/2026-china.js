@@ -22,9 +22,18 @@ const FLIGHT_GROUPS = [
         airline:"China Southern", code:"CZ", color:"#0066b3", logo:"../../assets/icons/airlines/CZ.png", flight:"CZ328 ➡️ CZ3401",
         dep:"22:00", depAp:"LAX", arr:"11:15", arrAp:"CTU", plus:"+2", depD:"12.4", arrD:"12.6",
         dur:"21h 15m",
-        tags:["转机 CAN 广州 · 停留 2h 35m","🛬 双流 CTU T1","✅ 已出票"],
+        tags:["✅ 已出票"],
         pick:true,
         day:"12.4.2026 Friday",
+        segments:[
+          { dep:"22:00", depD:"12.4", depAp:"洛杉矶国际机场（LAX）B",
+            arr:"05:55", arrD:"12.6", arrAp:"广州白云国际机场（CAN）T2",
+            dur:"15h 55m", info:"CZ328 · 经济舱 · Boeing 777-300 · 含餐" },
+          { transfer:"广州转机 2h 35m · 行李直挂，无需提取重挂" },
+          { dep:"08:30", depD:"12.6", depAp:"广州白云国际机场（CAN）T2",
+            arr:"11:15", arrD:"12.6", arrAp:"成都双流国际机场（CTU）T1",
+            dur:"2h 45m", info:"CZ3401 · 经济舱 · Boeing 737 · 小食" },
+        ],
         baggage:{
           note:"以上为每人额度 · 行李直挂成都，广州转机无需重新托运",
           items:[

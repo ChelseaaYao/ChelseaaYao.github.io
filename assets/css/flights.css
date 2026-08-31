@@ -93,6 +93,21 @@ h1{font-family:var(--serif);font-size:30px;font-weight:400;margin:0 0 4px;letter
   text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;cursor:pointer;line-height:1.4;}
 .fold:hover{color:var(--ink);}
 .fm-tbl{width:100%;border-collapse:collapse;margin-top:4px;}
+/* 分段行程时间轴（常驻展开） */
+.itin{margin-top:12px;border-top:1px solid var(--line);padding:14px 2px 4px;}
+.seg{position:relative;padding-left:24px;}
+.seg::before{content:"";position:absolute;left:4px;top:12px;bottom:12px;width:2px;background:var(--line);}
+.seg .irow{display:flex;align-items:baseline;gap:8px;position:relative;}
+.seg .idot{position:absolute;left:-24px;top:50%;transform:translate(1px,-50%);width:7px;height:7px;
+  border:2px solid var(--muted);border-radius:50%;background:var(--paper);}
+.seg .irow b{font-size:15px;}
+.seg .iapt{font-size:12px;color:var(--ink);}
+.seg .idate{font-size:11px;color:var(--cd);}
+.seg .iinfo{font-size:11px;color:var(--muted);padding:7px 0;}
+.seg .idur{margin-left:8px;color:var(--sy);}
+.itr{margin:10px 0 10px 24px;border:1px dashed var(--line);border-radius:10px;
+  padding:7px 12px;font-size:12px;color:var(--muted);}
+
 /* 行李额面板（常驻展开） */
 .bag{margin-top:12px;border-top:1px solid var(--line);padding:16px 6px 4px;}
 .bag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;}
