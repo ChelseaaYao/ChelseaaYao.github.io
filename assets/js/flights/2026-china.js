@@ -25,6 +25,7 @@ const FLIGHT_GROUPS = [
         tags:["转机 CAN 广州 · 停留 2h 35m","🛬 双流 CTU T1","✅ 已出票"],
         pick:true,
         day:"12.4.2026 Friday",
+        foot:"行李（每人）：🎒 随身 ×1 · 🧳 手提 1×8 kg（55×40×20 cm）· 🧳 托运 2×23 kg（158 cm）",
       },
     ],
   },
