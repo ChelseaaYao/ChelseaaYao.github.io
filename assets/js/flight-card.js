@@ -36,6 +36,16 @@
     .map(p => `<span class="pk">${p}</span>`)
     .join('<span class="psep">·</span>');
 
+  // 行李额面板：三栏（随身 / 手提 / 托运），数据 o.baggage = { note, items:[{icon,name,allow,size}] }
+  const baggageHTML = bg => !bg ? "" :
+    `<div class="bag"><div class="bag-grid">` +
+      bg.items.map(it =>
+        `<div class="bag-col"><div class="bic">${it.icon}</div>` +
+        `<div class="bnm">${it.name}</div>` +
+        `<div class="bqty">${it.allow}</div>` +
+        (it.size ? `<div class="bsz">${it.size}</div>` : "") + `</div>`).join("") +
+    `</div>` + (bg.note ? `<div class="bag-note">${bg.note}</div>` : "") + `</div>`;
+
   // 「渠道 × 时间」价格矩阵：行 = 票档/订票渠道，列 = 查价日期，每列最低价标绿
   function fareMatrix(fares){
     const dates = [];
@@ -112,11 +122,11 @@
             `</div>` +
             `<div class="mid">` +
               `<div class="tm">${timeHTML}</div>` +
-              `${(o.tags || []).length || o.stop || o.pick ? `<div class="chips">` +
+              `${(o.tags || []).length || o.stop ? `<div class="chips">` +
                 `${o.stop ? `<span class="chip dur">${o.stop}</span>` : ""}` +
                 `${(o.tags || []).map(t =>
                 `<span class="chip${/nonstop|直飞/i.test(t) ? " dur" : ""}">${t}</span>`).join("")}` +
-                `${o.pick ? `<span class="chip star">⭐ picked</span>` : ""}</div>` : ""}` +
+                `</div>` : ""}` +
             `</div>` +
             (o.prices ? `<div class="pricebox">${priceBlock(o.prices)}</div>` : "") +
           `</div>`;
@@ -129,6 +139,8 @@
           `</div>`
         ).join("") + `</div>` : "";
 
+        // 行李额面板常驻展开，不参与折叠
+        const bagHTML = baggageHTML(o.baggage);
         // 有票档 → 卡片收起时只显示最低价（多档带"起"），点击展开「渠道 × 时间」价格矩阵
         if (o.fares && o.fares.length){
           const latest = o.fares
@@ -141,6 +153,7 @@
             `<div class="pricebox">${minHTML}</div>` +
             `</div>` +
             `<div class="fdetail">${fareMatrix(o.fares)}<div class="fold">收起 ⬆️</div></div>` +
+            bagHTML +
             (o.foot ? `<div class="foot">${o.foot}</div>` : "");
           card.classList.add("has-fares");
           // 点卡片任意处展开；只有点"收起"才合上
@@ -150,7 +163,7 @@
             card.classList.add("open");
           });
         } else {
-          card.innerHTML = topHTML + faresHTML +
+          card.innerHTML = topHTML + faresHTML + bagHTML +
             (o.foot ? `<div class="foot">${o.foot}</div>` : "");
         }
         grid.appendChild(card);

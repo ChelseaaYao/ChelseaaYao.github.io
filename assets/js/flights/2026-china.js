@@ -25,7 +25,14 @@ const FLIGHT_GROUPS = [
         tags:["转机 CAN 广州 · 停留 2h 35m","🛬 双流 CTU T1","✅ 已出票"],
         pick:true,
         day:"12.4.2026 Friday",
-        foot:"行李（每人）：🎒 随身 ×1 · 🧳 手提 1×8 kg（55×40×20 cm）· 🧳 托运 2×23 kg（158 cm）",
+        baggage:{
+          note:"以上为每人额度 · 行李直挂成都，广州转机无需重新托运",
+          items:[
+            { icon:"🎒", name:"Personal item", allow:"×1", size:"随身小包" },
+            { icon:"👜", name:"Carry-on", allow:"1 × 8 kg", size:"55 × 40 × 20 cm" },
+            { icon:"🧳", name:"Checked", allow:"2 × 23 kg", size:"三边和 ≤ 158 cm" },
+          ],
+        },
       },
     ],
   },
