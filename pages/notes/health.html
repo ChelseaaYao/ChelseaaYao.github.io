@@ -179,7 +179,8 @@
   /* 月历竖排滚动容器：上下滑动翻月，月份头吸顶 */
   .calscroll{position:relative;max-height:540px;overflow-y:auto;margin:4px 0 6px;
     border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-    scroll-snap-type:y proximity;overscroll-behavior:contain;scrollbar-width:thin;}
+    scroll-snap-type:y proximity;overscroll-behavior:contain;scrollbar-width:none;}
+  .calscroll::-webkit-scrollbar{display:none;}
   .calmonth{scroll-snap-align:start;padding-bottom:4px;}
   .calm-h{position:sticky;top:0;z-index:2;background:var(--paper);
     font-family:var(--serif);font-size:15px;letter-spacing:.6px;color:var(--ink);
