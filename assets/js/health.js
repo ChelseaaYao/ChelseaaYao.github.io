@@ -216,10 +216,10 @@
       curLab.innerHTML = `<span class="cm">${MN[+mm]}</span><span class="cy">${yy}</span>`;
       curLab.classList.remove("roll"); void curLab.offsetWidth; curLab.classList.add("roll");
     };
-    // 容器高度贴合当前月份，短月份（5 行）不留空白
-    const fitCal = mk => {
-      const el = sc.querySelector(`.calmonth[data-mk="${mk}"]`);
-      if (el) sc.style.height = el.offsetHeight + "px";
+    // 容器高度固定为最高月份的高度，切月时不跳动
+    const fitCal = () => {
+      const hs = [...sc.querySelectorAll(".calmonth")].map(el => el.offsetHeight);
+      if (hs.length) sc.style.height = Math.max(...hs) + "px";
     };
 
     // 记录列表月份切换：All=按月分组全列，选中某月=两个清单各自过滤
@@ -247,7 +247,6 @@
           setTab(curMk);
           drawRecs(curMk);
           drawStats(curMk);
-          fitCal(curMk);
           setLab(curMk);
         }
       }, 120);
@@ -255,7 +254,7 @@
     drawRecs(mk0);
     // 默认停在当前月
     setLab(mk0);
-    fitCal(mk0);
+    fitCal();
     const el0 = sc.querySelector(`.calmonth[data-mk="${mk0}"]`);
     if (el0) sc.scrollTop = el0.offsetTop;
     box.querySelectorAll(".mt").forEach(el => el.addEventListener("click", () => {
@@ -265,7 +264,6 @@
       if (mk){
         curMk = mk;
         drawStats(mk);
-        fitCal(mk);
         setLab(mk);
         const t = sc.querySelector(`.calmonth[data-mk="${mk}"]`);
         if (t){ lockUntil = Date.now() + 800; sc.scrollTo({ top: t.offsetTop, behavior: "smooth" }); }
