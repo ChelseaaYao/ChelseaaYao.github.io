@@ -189,8 +189,10 @@
   .calscroll::-webkit-scrollbar{display:none;}
   .calmonth{scroll-snap-align:start;padding-bottom:4px;}
   .calm-h{position:sticky;top:0;z-index:2;background:var(--paper);
-    font-family:var(--serif);font-size:15px;letter-spacing:.6px;color:var(--ink);
+    font-family:var(--serif);font-size:15px;line-height:22px;letter-spacing:.6px;color:var(--ink);
     padding:9px 4px 7px;border-bottom:1px solid var(--line);}
+  /* 星期栏跟着吸顶（吸在月份头正下方），滑动时只有日期在动 */
+  .calscroll .cw{position:sticky;top:39px;z-index:1;background:var(--paper);}
 
   /* 迷你月历（参考薄荷健康 + 网格线）：日期居中、体重在下 */
   .calwrap{margin:6px 0 4px;}
