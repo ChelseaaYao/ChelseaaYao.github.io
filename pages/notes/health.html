@@ -188,10 +188,10 @@
     scroll-snap-type:y proximity;overscroll-behavior:contain;scrollbar-width:none;}
   .calscroll::-webkit-scrollbar{display:none;}
   .calmonth{scroll-snap-align:start;padding-bottom:4px;}
-  /* 当前月标签：固定在星期栏上方，切月时向下翻入 */
-  .calm-cur{overflow:hidden;padding:8px 4px 5px;font-family:var(--serif);}
-  .calm-cur .cm{display:inline-block;color:var(--cd);font-weight:700;font-size:17px;letter-spacing:.6px;}
-  .calm-cur .cy{display:inline-block;color:var(--muted);font-size:13px;margin-left:8px;}
+  /* 当前月标签（Logs 卡片标题位）：切月时向下翻入 */
+  .calm-cur{overflow:hidden;display:inline-block;vertical-align:bottom;font-family:var(--serif);}
+  .calm-cur .cm{display:inline-block;color:var(--cd);font-weight:700;font-size:19px;letter-spacing:.6px;}
+  .calm-cur .cy{display:inline-block;color:var(--muted);font-size:14px;margin-left:8px;}
   .calm-cur.roll .cm,.calm-cur.roll .cy{animation:rolldown .3s ease;}
   @keyframes rolldown{from{transform:translateY(-80%);opacity:0}to{transform:translateY(0);opacity:1}}
   /* 星期栏固定在滚动区外，永远不动 */

@@ -135,7 +135,7 @@
       </h2><div class="chart-wrap" id="wchart"></div>
       <div class="legend"><span><i class="lw"></i>Weight</span><span><i class="lm"></i>7-pt avg</span>${starts.length ? '<span><i class="lp"></i>Period</span>' : ""}${goal ? '<span><i class="lg"></i>Goal</span>' : ""}</div></div>
       <div id="mcard">${monthCard(es, +last.d.split(".")[0])}</div>
-      <div class="card"><h2>📋&ensp;Logs
+      <div class="card"><h2>📋&ensp;<span class="calm-cur" id="calm-cur"></span>
         <span class="gp" id="lg-count">${es.length} entries</span>
         <span class="rtabs" style="margin-left:14px"><span class="lt on" data-p="w">Weight</span><span class="lt" data-p="k">Workouts</span></span></h2>
         <div class="mtabs">${["All", ...months].map((k, i) =>
@@ -202,7 +202,6 @@
 
     // 月历：所有月份竖排在一个滚动容器里，上下滑动翻月；标签和下方清单跟随滚动位置
     document.getElementById("calbox").innerHTML =
-      `<div class="calm-cur" id="calm-cur"></div>` +
       `<div class="calgrid calweek">${["M","T","W","T","F","S","S"].map((w, i) =>
         `<div class="cw${i >= 5 ? " wk" : ""}">${w}</div>`).join("")}</div>` +
       `<div class="calscroll" id="calscroll">${months.map(mk =>
