@@ -195,8 +195,9 @@
       `<div class="calscroll" id="calscroll">${months.map(mk => {
         const [yy, mm] = mk.split(".");
         return `<div class="calmonth" data-mk="${mk}"><div class="calm-h">${yy} · ${MN[+mm]}</div>${calmini(es, starts, mk)}</div>`;
-      }).join("")}</div>`;
+      }).join("")}</div><div id="calstats">${mstats(es, mk0)}</div>`;
     const sc = document.getElementById("calscroll");
+    const drawStats = mk => { document.getElementById("calstats").innerHTML = mstats(es, mk); };
 
     // 记录列表月份切换：All=按月分组全列，选中某月=两个清单各自过滤
     const drawRecs = mk => {
@@ -222,6 +223,7 @@
           curMk = best.dataset.mk;
           setTab(curMk);
           drawRecs(curMk);
+          drawStats(curMk);
         }
       }, 120);
     });
@@ -235,6 +237,7 @@
       drawRecs(mk);
       if (mk){
         curMk = mk;
+        drawStats(mk);
         const t = sc.querySelector(`.calmonth[data-mk="${mk}"]`);
         if (t){ lockUntil = Date.now() + 800; sc.scrollTo({ top: t.offsetTop, behavior: "smooth" }); }
       }
@@ -573,22 +576,22 @@
     }
     for (let t = firstWd + nDays; t % 7 !== 0; t++) s += `<div class="cday"></div>`;   // 补齐末行，网格线不缺角
 
-    // 本月统计条：平均 / 最大 / 最小 / 变化（首末记录差）
-    let stats = "";
-    const days = Object.keys(byDay).map(Number).sort((a, b) => a - b);
-    if (days.length){
-      const ws = days.map(d => byDay[d]);
-      const chg = ws[ws.length - 1] - ws[0];
-      const mw = WLOGS.filter(w => w.d.startsWith(mk + "."));   // 当月运动
-      stats = `<div class="mstats">
-        <div class="ms"><span class="k">AVG</span><b class="hl">${f2(ws.reduce((s, v) => s + v, 0) / ws.length)}</b></div>
-        <div class="ms"><span class="k">MAX</span><b>${f2(Math.max(...ws))}</b></div>
-        <div class="ms"><span class="k">MIN</span><b>${f2(Math.min(...ws))}</b></div>
-        <div class="ms"><span class="k">CHANGE</span><b class="${chg <= 0 ? "good" : "bad"}">${delta(chg)}</b></div>
-        ${mw.length ? `<div class="ms"><span class="k">BURNED · ${mw.length}×</span><b class="wk">${mw.reduce((s, w) => s + w.kcal, 0)}<i>kcal</i></b></div>` : ""}
-      </div>`;
-    }
-    return `<div class="calwrap"><div class="calgrid">${s}</div></div>${stats}`;
+    return `<div class="calwrap"><div class="calgrid">${s}</div></div>`;
+  }
+
+  // ── 月统计条：平均 / 最大 / 最小 / 变化（首末记录差）——固定在月历滚动区外，随当前月更新 ──
+  function mstats(es, mk){
+    const ws = es.filter(e => e.d.startsWith(mk + ".")).map(e => e.w);
+    if (!ws.length) return "";
+    const chg = ws[ws.length - 1] - ws[0];
+    const mw = WLOGS.filter(w => w.d.startsWith(mk + "."));   // 当月运动
+    return `<div class="mstats">
+      <div class="ms"><span class="k">AVG</span><b class="hl">${f2(ws.reduce((s, v) => s + v, 0) / ws.length)}</b></div>
+      <div class="ms"><span class="k">MAX</span><b>${f2(Math.max(...ws))}</b></div>
+      <div class="ms"><span class="k">MIN</span><b>${f2(Math.min(...ws))}</b></div>
+      <div class="ms"><span class="k">CHANGE</span><b class="${chg <= 0 ? "good" : "bad"}">${delta(chg)}</b></div>
+      ${mw.length ? `<div class="ms"><span class="k">BURNED · ${mw.length}×</span><b class="wk">${mw.reduce((s, w) => s + w.kcal, 0)}<i>kcal</i></b></div>` : ""}
+    </div>`;
   }
 
   // 某月消耗与上月同期对比（当前月按"过到第几天"截断上月，历史月全月对全月）
