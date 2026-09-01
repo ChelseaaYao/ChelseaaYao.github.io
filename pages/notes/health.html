@@ -176,6 +176,15 @@
   .mt:hover{color:var(--ink);border-color:#4a505a;}
   .mt.on{color:var(--cd);border-color:var(--cd);font-weight:700;}
 
+  /* 月历竖排滚动容器：上下滑动翻月，月份头吸顶 */
+  .calscroll{position:relative;max-height:540px;overflow-y:auto;margin:4px 0 6px;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    scroll-snap-type:y proximity;overscroll-behavior:contain;scrollbar-width:thin;}
+  .calmonth{scroll-snap-align:start;padding-bottom:4px;}
+  .calm-h{position:sticky;top:0;z-index:2;background:var(--paper);
+    font-family:var(--serif);font-size:15px;letter-spacing:.6px;color:var(--ink);
+    padding:9px 4px 7px;border-bottom:1px solid var(--line);}
+
   /* 迷你月历（参考薄荷健康 + 网格线）：日期居中、体重在下 */
   .calwrap{margin:6px 0 4px;}
   .calgrid{display:grid;grid-template-columns:repeat(7,1fr);}

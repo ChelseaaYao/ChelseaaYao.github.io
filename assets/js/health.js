@@ -190,18 +190,54 @@
     }));
     ltSync();
 
-    // 记录列表月份切换：All=按月分组全列，选中某月=迷你月历（共享）+ 两个清单各自过滤
+    // 月历：所有月份竖排在一个滚动容器里，上下滑动翻月；标签和下方清单跟随滚动位置
+    document.getElementById("calbox").innerHTML =
+      `<div class="calscroll" id="calscroll">${months.map(mk => {
+        const [yy, mm] = mk.split(".");
+        return `<div class="calmonth" data-mk="${mk}"><div class="calm-h">${yy} · ${MN[+mm]}</div>${calmini(es, starts, mk)}</div>`;
+      }).join("")}</div>`;
+    const sc = document.getElementById("calscroll");
+
+    // 记录列表月份切换：All=按月分组全列，选中某月=两个清单各自过滤
     const drawRecs = mk => {
-      document.getElementById("calbox").innerHTML = mk ? calmini(es, starts, mk) : "";
       document.getElementById("reclist").innerHTML = mk
         ? rows(es.filter(e => e.d.startsWith(mk + ".")), starts, false)
         : rows(es, starts, true);
       document.getElementById("lg-workout").innerHTML = wrows(mk);
     };
+    const setTab = mk => box.querySelectorAll(".mt").forEach(x => x.classList.toggle("on", x.dataset.m === mk));
+
+    // 滚动月历 → 停稳后自动切到最近的月份；点标签 → 平滑滚过去（期间忽略滚动事件防打架）
+    let curMk = mk0, lockUntil = 0;
+    sc.addEventListener("scroll", () => {
+      clearTimeout(sc._t);
+      sc._t = setTimeout(() => {
+        if (Date.now() < lockUntil) return;
+        let best = null, bd = Infinity;
+        sc.querySelectorAll(".calmonth").forEach(el => {
+          const d = Math.abs(el.offsetTop - sc.scrollTop);
+          if (d < bd){ bd = d; best = el; }
+        });
+        if (best && best.dataset.mk !== curMk){
+          curMk = best.dataset.mk;
+          setTab(curMk);
+          drawRecs(curMk);
+        }
+      }, 120);
+    });
     drawRecs(mk0);
+    // 默认停在当前月
+    const el0 = sc.querySelector(`.calmonth[data-mk="${mk0}"]`);
+    if (el0) sc.scrollTop = el0.offsetTop;
     box.querySelectorAll(".mt").forEach(el => el.addEventListener("click", () => {
-      box.querySelectorAll(".mt").forEach(x => x.classList.toggle("on", x === el));
-      drawRecs(el.dataset.m);
+      const mk = el.dataset.m;
+      setTab(mk);
+      drawRecs(mk);
+      if (mk){
+        curMk = mk;
+        const t = sc.querySelector(`.calmonth[data-mk="${mk}"]`);
+        if (t){ lockUntil = Date.now() + 800; sc.scrollTo({ top: t.offsetTop, behavior: "smooth" }); }
+      }
     }));
 
     initTip();
