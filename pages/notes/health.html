@@ -188,10 +188,14 @@
     scroll-snap-type:y proximity;overscroll-behavior:contain;scrollbar-width:none;}
   .calscroll::-webkit-scrollbar{display:none;}
   .calmonth{scroll-snap-align:start;padding-bottom:4px;}
-  .calm-h{font-family:var(--serif);font-size:15px;line-height:22px;letter-spacing:.6px;color:var(--ink);
-    padding:9px 4px 7px;border-bottom:1px solid var(--line);}
+  /* 当前月标签：固定在星期栏上方，切月时向下翻入 */
+  .calm-cur{overflow:hidden;padding:8px 4px 5px;font-family:var(--serif);}
+  .calm-cur .cm{display:inline-block;color:var(--cd);font-weight:700;font-size:17px;letter-spacing:.6px;}
+  .calm-cur .cy{display:inline-block;color:var(--muted);font-size:13px;margin-left:8px;}
+  .calm-cur.roll .cm,.calm-cur.roll .cy{animation:rolldown .3s ease;}
+  @keyframes rolldown{from{transform:translateY(-80%);opacity:0}to{transform:translateY(0);opacity:1}}
   /* 星期栏固定在滚动区外，永远不动 */
-  .calweek{margin-top:4px;border-bottom:1px solid var(--line);}
+  .calweek{margin-top:2px;border-bottom:1px solid var(--line);}
 
   /* 迷你月历（参考薄荷健康 + 网格线）：日期居中、体重在下 */
   .calwrap{margin:6px 0 4px;}

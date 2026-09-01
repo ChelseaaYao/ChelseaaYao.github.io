@@ -202,14 +202,21 @@
 
     // 月历：所有月份竖排在一个滚动容器里，上下滑动翻月；标签和下方清单跟随滚动位置
     document.getElementById("calbox").innerHTML =
+      `<div class="calm-cur" id="calm-cur"></div>` +
       `<div class="calgrid calweek">${["M","T","W","T","F","S","S"].map((w, i) =>
         `<div class="cw${i >= 5 ? " wk" : ""}">${w}</div>`).join("")}</div>` +
-      `<div class="calscroll" id="calscroll">${months.map(mk => {
-        const [yy, mm] = mk.split(".");
-        return `<div class="calmonth" data-mk="${mk}"><div class="calm-h">${yy} · ${MN[+mm]}</div>${calmini(es, starts, mk)}</div>`;
-      }).join("")}</div><div id="calstats">${mstats(es, mk0)}</div>`;
+      `<div class="calscroll" id="calscroll">${months.map(mk =>
+        `<div class="calmonth" data-mk="${mk}">${calmini(es, starts, mk)}</div>`).join("")}</div>` +
+      `<div id="calstats">${mstats(es, mk0)}</div>`;
     const sc = document.getElementById("calscroll");
     const drawStats = mk => { document.getElementById("calstats").innerHTML = mstats(es, mk); };
+    // 当前月标签（星期栏上方，固定不滚）：切月时向下翻入
+    const curLab = document.getElementById("calm-cur");
+    const setLab = mk => {
+      const [yy, mm] = mk.split(".");
+      curLab.innerHTML = `<span class="cm">${MN[+mm]}</span><span class="cy">${yy}</span>`;
+      curLab.classList.remove("roll"); void curLab.offsetWidth; curLab.classList.add("roll");
+    };
     // 容器高度贴合当前月份，短月份（5 行）不留空白
     const fitCal = mk => {
       const el = sc.querySelector(`.calmonth[data-mk="${mk}"]`);
@@ -242,11 +249,13 @@
           drawRecs(curMk);
           drawStats(curMk);
           fitCal(curMk);
+          setLab(curMk);
         }
       }, 120);
     });
     drawRecs(mk0);
     // 默认停在当前月
+    setLab(mk0);
     fitCal(mk0);
     const el0 = sc.querySelector(`.calmonth[data-mk="${mk0}"]`);
     if (el0) sc.scrollTop = el0.offsetTop;
@@ -258,6 +267,7 @@
         curMk = mk;
         drawStats(mk);
         fitCal(mk);
+        setLab(mk);
         const t = sc.querySelector(`.calmonth[data-mk="${mk}"]`);
         if (t){ lockUntil = Date.now() + 800; sc.scrollTo({ top: t.offsetTop, behavior: "smooth" }); }
       }
