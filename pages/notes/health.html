@@ -187,6 +187,13 @@
     scroll-snap-type:y proximity;overscroll-behavior:contain;scrollbar-width:none;}
   .calscroll::-webkit-scrollbar{display:none;}
   .calmonth{scroll-snap-align:start;padding-bottom:4px;}
+  /* 围度卡：chip 里的单位和环比 */
+  .chip .mu{font-style:normal;font-size:10px;color:var(--muted);font-weight:400;margin-left:3px;}
+  .chip .md{font-size:11px;font-weight:700;margin-left:6px;}
+  .chip .md.good{color:var(--sy);}
+  .chip .md.bad{color:var(--jp);}
+  .chips.meas{padding-bottom:12px;}
+
   /* 当前月标签（Logs 卡片标题位）：切月时向下翻入 */
   .calm-cur{overflow:hidden;display:inline-block;vertical-align:bottom;font-family:var(--serif);}
   .calm-cur .cm{display:inline-block;color:var(--cd);font-weight:700;font-size:19px;letter-spacing:.6px;}

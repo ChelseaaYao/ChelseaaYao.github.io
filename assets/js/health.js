@@ -3,6 +3,7 @@
 //   period:{starts:[经期开始日]}（元素可为 "2026.1.17" 或 {d:"2026.1.17", days:4}，days 缺省 5）,
 //   months:["2026-01",…] }
 // 月度文件：[{ d:"2026.1.9", w:49.9, n:"备注(可选)" }]
+// measurements.json（围度，cm）：[{ d:"2026.9.1", bust, waist, hips, thigh, arm, calf }]（可只记部分）
 // 更新方式：Chelsea 把新的体重/经期记录发给 Claude，追加进当月 JSON 并维护 index.json，本文件不动
 (function(){
   const box = document.getElementById("health");
@@ -18,7 +19,8 @@
     .then(idx => Promise.all([
       Promise.all(idx.months.map(m => load(`${m}.json`))),
       load("workouts.json").catch(() => []),
-    ]).then(([files, workouts]) => { RAW = { ...idx, entries: files.flat(), workouts }; render(); }))
+      load("measurements.json").catch(() => []),
+    ]).then(([files, workouts, meas]) => { RAW = { ...idx, entries: files.flat(), workouts, meas }; render(); }))
     .catch(() => {
       box.innerHTML = '<div class="empty">Failed to load — open via the website, not file:// 🌿</div>';
     });
@@ -146,7 +148,8 @@
           <div id="lg-weight"><div id="reclist"></div></div>
           <div id="lg-workout" style="display:none"></div>
         </div></div>
-      ${starts.length ? periodCard(starts) : ""}`;
+      ${starts.length ? periodCard(starts) : ""}
+      ${measCard(DATA.meas || [])}`;
 
     // 趋势图范围切换
     const draw = r => {
@@ -526,6 +529,30 @@
     return `<div class="hdiv"></div>
       <div class="chart-wrap"><svg class="chart nosc" viewBox="0 0 ${W} ${H}">${s}</svg></div>
       <div class="legend cen"><span><i class="hle"></i>雌激素</span><span><i class="hll"></i>黄体生成素</span><span><i class="hlp"></i>孕激素</span></div>`;
+  }
+
+  // ── 围度卡：最新一次测量的各部位 chip（带环比箭头）+ 历史记录列表 ──
+  function measCard(ms){
+    const KEYS = [["bust","BUST"],["waist","WAIST"],["hips","HIPS"],["thigh","THIGH"],["arm","ARM"],["calf","CALF"]];
+    let body;
+    if (!ms.length) body = '<div class="empty">No data yet 📏</div>';
+    else {
+      const sorted = ms.slice().sort((a, b) => dnum(a.d) - dnum(b.d));
+      const last = sorted[sorted.length - 1], prev = sorted[sorted.length - 2];
+      const chips = KEYS.filter(([k]) => last[k] != null).map(([k, lab]) => {
+        const df = prev && prev[k] != null ? last[k] - prev[k] : null;
+        const zero = df !== null && Math.abs(df) < 0.05;
+        return `<div class="chip"><span class="ck">${lab}</span><span class="cv">${f1(last[k])}<i class="mu">cm</i>${
+          df === null ? "" : `<span class="md ${zero ? "" : df < 0 ? "good" : "bad"}">${zero ? "→" : df < 0 ? "⬇️" : "⬆️"}${zero ? "" : " " + f1(Math.abs(df))}</span>`}</span></div>`;
+      }).join("");
+      const rows = sorted.slice().reverse().map(e => {
+        const dt = ddate(e.d);
+        return `<div class="row"><span class="d">${dshow(e.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
+          <span class="n">${KEYS.filter(([k]) => e[k] != null).map(([k, lab]) => `${lab} ${f1(e[k])}`).join(" · ")}</span></div>`;
+      }).join("");
+      body = `<div class="chips meas">${chips}</div>${rows}`;
+    }
+    return `<div class="card"><h2>📏&ensp;Body Check<span class="gp">${ms.length ? `${ms.length} logged · cm` : "cm"}</span></h2>${body}</div>`;
   }
 
   // ── 月均体重：小折线图（按年份筛选），点按环比涨跌着色，数值直接标在点上 ──
