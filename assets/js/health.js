@@ -134,7 +134,6 @@
         <span class="rtabs">${["All","3M","30D"].map((t, i) => `<span class="rt${i === 1 ? " on" : ""}" data-r="${i}">${t}</span>`).join("")}</span>
       </h2><div class="chart-wrap" id="wchart"></div>
       <div class="legend"><span><i class="lw"></i>Weight</span><span><i class="lm"></i>7-pt avg</span>${starts.length ? '<span><i class="lp"></i>Period</span>' : ""}${goal ? '<span><i class="lg"></i>Goal</span>' : ""}</div></div>
-      ${starts.length ? periodCard(starts) : ""}
       <div id="mcard">${monthCard(es, +last.d.split(".")[0])}</div>
       <div class="card"><h2>📋&ensp;Logs
         <span class="gp" id="lg-count">${es.length} entries</span>
@@ -142,10 +141,12 @@
         <div class="mtabs">${["All", ...months].map((k, i) =>
           `<span class="mt${(i ? k : "") === mk0 ? " on" : ""}" data-m="${i ? k : ""}">${i ? MN[+k.split(".")[1]] : "All"}</span>`).join("")}</div>
         <div id="calbox"></div>
-        <div id="lg-wrap">
+        <div class="lg-toggle" id="lg-toggle">Details ▾</div>
+        <div id="lg-wrap" style="display:none">
           <div id="lg-weight"><div id="reclist"></div></div>
           <div id="lg-workout" style="display:none"></div>
-        </div></div>`;
+        </div></div>
+      ${starts.length ? periodCard(starts) : ""}`;
 
     // 趋势图范围切换
     const draw = r => {
@@ -169,6 +170,15 @@
         bindYr();
       }));
     bindYr();
+
+    // Logs 明细默认收起，点 Details 展开
+    const lgt = document.getElementById("lg-toggle");
+    lgt.addEventListener("click", () => {
+      const w = document.getElementById("lg-wrap");
+      const open = w.style.display === "none";
+      w.style.display = open ? "" : "none";
+      lgt.textContent = open ? "Hide details ▴" : "Details ▾";
+    });
 
     // Logs 双开关：Weight / Workouts 各自独立点亮，亮谁显示谁，可同时显示（至少留一个）
     const ltSync = () => {
