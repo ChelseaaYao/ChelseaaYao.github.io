@@ -202,11 +202,11 @@
 
     // 月历：所有月份竖排在一个滚动容器里，上下滑动翻月；标签和下方清单跟随滚动位置
     document.getElementById("calbox").innerHTML =
+      `<div id="calstats">${mstats(es, mk0)}</div>` +
       `<div class="calgrid calweek">${["M","T","W","T","F","S","S"].map((w, i) =>
         `<div class="cw${i >= 5 ? " wk" : ""}">${w}</div>`).join("")}</div>` +
       `<div class="calscroll" id="calscroll">${months.map(mk =>
-        `<div class="calmonth" data-mk="${mk}">${calmini(es, starts, mk)}</div>`).join("")}</div>` +
-      `<div id="calstats">${mstats(es, mk0)}</div>`;
+        `<div class="calmonth" data-mk="${mk}">${calmini(es, starts, mk)}</div>`).join("")}</div>`;
     const sc = document.getElementById("calscroll");
     const drawStats = mk => { document.getElementById("calstats").innerHTML = mstats(es, mk); };
     // 当前月标签（星期栏上方，固定不滚）：切月时向下翻入
