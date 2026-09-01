@@ -202,6 +202,8 @@
 
     // 月历：所有月份竖排在一个滚动容器里，上下滑动翻月；标签和下方清单跟随滚动位置
     document.getElementById("calbox").innerHTML =
+      `<div class="calgrid calweek">${["M","T","W","T","F","S","S"].map((w, i) =>
+        `<div class="cw${i >= 5 ? " wk" : ""}">${w}</div>`).join("")}</div>` +
       `<div class="calscroll" id="calscroll">${months.map(mk => {
         const [yy, mm] = mk.split(".");
         return `<div class="calmonth" data-mk="${mk}"><div class="calm-h">${yy} · ${MN[+mm]}</div>${calmini(es, starts, mk)}</div>`;
@@ -584,7 +586,7 @@
     const nDays = new Date(y, m, 0).getDate();
     const now = new Date();
     const td = now.getFullYear() === y && now.getMonth() === m - 1 ? now.getDate() : 0;
-    let s = ["M","T","W","T","F","S","S"].map((w, i) => `<div class="cw${i >= 5 ? " wk" : ""}">${w}</div>`).join("");
+    let s = "";
     for (let i = 0; i < firstWd; i++) s += `<div class="cday"></div>`;
     for (let d = 1; d <= nDays; d++){
       const wk = WDAYS[`${y}.${m}.${d}`];
