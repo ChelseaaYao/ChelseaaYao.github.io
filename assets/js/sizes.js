@@ -21,7 +21,7 @@
     tight: ["fit-tight", "⬇️ Tight"],
   };
   const KEYS = {
-    tops:    [["bust","BUST"],["shoulder","SHOULDER"],["length","LENGTH"],["sleeve","SLEEVE"],["hem","HEM"],["cuff","CUFF"]],
+    tops:    [["bust","BUST"],["waist","WAIST"],["shoulder","SHOULDER"],["length","LENGTH"],["sleeve","SLEEVE"],["hem","HEM"],["cuff","CUFF"]],
     bottoms: [["waist","WAIST"],["hips","HIPS"],["rise","RISE"],["thigh","THIGH"],["inseam","INSEAM"],["length","LENGTH"]],
   };
 
