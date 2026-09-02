@@ -11,7 +11,10 @@
   const script = document.currentScript;
   const HASH = script.dataset.hash;
   const ENC = script.dataset.enc;
-  const KEY = "gate:" + location.pathname;
+  // 加密模式按数据目录记免重输（同一套数据的多个页面只输一次）；哈希模式按页面路径
+  const KEY = "gate:" + (ENC
+    ? new URL(ENC, location.href).pathname.replace(/[^/]*$/, "")
+    : location.pathname);
 
   // 先立刻遮住整页，避免内容闪现
   const style = document.createElement("style");
