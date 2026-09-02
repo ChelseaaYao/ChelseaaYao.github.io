@@ -554,7 +554,7 @@
     }
     return `<div class="card"><h2>📏&ensp;Body Check<span class="gp">${ms.length ? `${ms.length} logged · cm` : "cm"}</span></h2>${body}</div>
       <a class="card szcard" href="sizes.html"><span class="ic">👗</span>
-        <span><span class="t">Size Book</span><span class="s">CLOTHING SIZE REFERENCE · 买过的衣服尺码都在这</span></span>
+        <span><span class="t">Size Book</span><span class="s">CLOTHING SIZE REFERENCE</span></span>
         <span class="arr">→</span></a>`;
   }
 
