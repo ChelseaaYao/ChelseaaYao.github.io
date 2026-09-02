@@ -24,8 +24,8 @@
     tshirts: TOPK,
     pants:  BTMK,
     shorts: BTMK,
-    skirts: [["waist","腰围"],["hips","臀围"],["length","裙长"],["hem","摆围"]],
-    dresses: [["waist","腰围"],["length","裙长"],["bust","胸围"],["hips","臀围"],["shoulder","肩宽"],["sleeve","袖长"]],
+    skirts: [["waist","腰围"],["hips","臀围"],["hem","摆围"],["length","裙长"]],
+    dresses: [["waist","腰围"],["bust","胸围"],["hips","臀围"],["shoulder","肩宽"],["sleeve","袖长"],["length","裙长"]],
   };
 
   Promise.all([load("sizes.json"), load("measurements.json").catch(() => [])])
