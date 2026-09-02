@@ -3,7 +3,7 @@
 //   条目：{ img:"closet/ 下文件名(可选)", brand, item, size,
 //          各围度 cm（可只记部分）, n:"备注(可选)" }
 //   long/short 围度：bust 胸围 / shoulder 肩宽 / length 衣长(后中) / sleeve 袖长 / hem 下摆围 / cuff 袖口
-//   pants/shorts 围度：waist 腰围 / hips 臀围 / rise 前裆 / thigh 大腿围 / inseam 内长 / length 裤长
+//   pants/shorts 围度：waist 腰围 / hips 臀围 / rise 前裆 / thigh 大腿围 / hem 脚口 / inseam 内长 / length 裤长
 //   skirts 围度：waist 腰围 / hips 臀围 / length 裙长 / hem 摆围
 //   dresses 围度：length 裙长 / bust 胸围 / waist 腰围 / hips 臀围 / shoulder 肩宽 / sleeve 袖长
 // 图片放 assets/img/closet/（注意：图片本身不加密，仅数据加密）
@@ -18,7 +18,7 @@
 
   const f1 = n => (Math.round(n * 10) / 10) + "";
   const TOPK = [["length","衣长"],["bust","胸围"],["waist","腰围"],["shoulder","肩宽"],["sleeve","袖长"],["hem","下摆围"],["cuff","袖口"]];
-  const BTMK = [["waist","腰围"],["hips","臀围"],["rise","前裆"],["thigh","大腿围"],["inseam","内长"],["length","裤长"]];
+  const BTMK = [["waist","腰围"],["hips","臀围"],["rise","前裆"],["thigh","大腿围"],["hem","脚口"],["inseam","内长"],["length","裤长"]];
   const KEYS = {
     long:   TOPK,
     short:  TOPK,
