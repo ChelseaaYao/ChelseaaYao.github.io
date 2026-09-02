@@ -12,7 +12,7 @@
   h1{font-family:var(--serif);font-size:30px;font-weight:400;margin:0 0 4px;letter-spacing:.5px;}
   .subtitle{font-size:12px;color:var(--muted);letter-spacing:1.5px;margin:5px 0 24px;}
 
-  .card{position:relative;overflow:hidden;background:var(--paper);border:1px solid var(--line);
+  .card{position:relative;background:var(--paper);border:1px solid var(--line);
     border-radius:14px;padding:6px 18px 14px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
   .card h2{font-family:var(--serif);font-weight:400;font-size:17px;letter-spacing:.5px;
     margin:0 0 10px;padding:10px 0;display:flex;align-items:baseline;border-bottom:1px solid var(--line);}
@@ -23,7 +23,10 @@
   .tbl-wrap{overflow-x:auto;margin:2px -4px 4px;}
   table{width:100%;border-collapse:collapse;}
   th{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:1px;text-align:center;
-    padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;}
+    padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;
+    position:sticky;top:0;background:var(--paper);z-index:3;}
+  /* 窄一点的屏幕表格还要横滑，sticky 会失效；够宽时放开溢出让表头吸顶 */
+  @media (min-width:900px){ .tbl-wrap{overflow:visible;} }
   td{padding:10px;text-align:center;border-bottom:1px dashed var(--line);font-size:13.5px;}
   tr:last-child td{border-bottom:none;}
   tbody tr{transition:background .15s ease;}
