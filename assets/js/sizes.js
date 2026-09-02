@@ -38,7 +38,7 @@
       const fit = FIT[e.fit];
       h += `<tr>
         <td class="pc">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${cat === "tops" ? "👕" : "👖"}</span>`}</td>
-        <td class="l"><b>${e.brand ? e.brand + " " : ""}</b>${e.item || ""}${e.n ? `<div class="nt">${e.n}</div>` : ""}</td>
+        <td class="l">${e.brand ? `<b>${e.brand}</b>` : ""}<div class="inm">${e.item || ""}</div>${e.n ? `<div class="nt">${e.n}</div>` : ""}</td>
         <td><span class="size">${e.size || "–"}</span></td>` +
         cols.map(([k]) => `<td class="v">${e[k] != null ? f1(e[k]) : "–"}</td>`).join("") +
         `<td>${fit ? `<span class="fit ${fit[0]}">${fit[1]}</span>` : "–"}</td></tr>`;
