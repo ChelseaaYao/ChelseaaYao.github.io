@@ -68,7 +68,7 @@
           .map(([k, lab]) => `<span class="mk"><i>${lab}</i>${f1(last[k])} cm</span>`).join("")}</div></div>`;
     }
 
-    [["long", "🧥&ensp;Long Sleeve"], ["short", "👕&ensp;Short Sleeve"], ["bottoms", "👖&ensp;Bottoms"]].forEach(([cat, title]) => {
+    [["long", "🧥&ensp;Long Sleeve"], ["short", "👕&ensp;T-Shirts"], ["bottoms", "👖&ensp;Bottoms"]].forEach(([cat, title]) => {
       // 同品牌排在一起（品牌顺序按首次出现）
       const raw = sz[cat] || [];
       const bo = [...new Set(raw.map(e => e.brand || ""))];
