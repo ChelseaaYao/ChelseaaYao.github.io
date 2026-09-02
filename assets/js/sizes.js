@@ -78,7 +78,7 @@
           .map(([k, lab]) => `<span class="mk"><i>${lab}</i>${f1(last[k])} cm</span>`).join("")}</div></div>`;
     }
 
-    [["long", "🧥&ensp;长袖"], ["short", "👕&ensp;短袖"], ["bottoms", "👖&ensp;Bottoms"]].forEach(([cat, title]) => {
+    [["long", "🧥&ensp;Long Sleeve"], ["short", "👕&ensp;Short Sleeve"], ["bottoms", "👖&ensp;Bottoms"]].forEach(([cat, title]) => {
       const list = sz[cat] || [];
       html += `<div class="card"><h2>${title}<span class="gp">${list.length} items</span></h2>
         ${list.length ? sectionTable(list, cat) : '<div class="empty">Nothing here yet 🛍️</div>'}</div>`;
