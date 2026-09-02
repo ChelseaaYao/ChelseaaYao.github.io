@@ -33,7 +33,7 @@
   function sectionTable(list, cat){
     const cols = KEYS[cat].filter(([k]) => list.some(e => e[k] != null));
     const hasFit = list.some(e => FIT[e.fit]);   // 没人记合身度就不出这列
-    let h = `<div class="tbl-wrap"><table><thead><tr><th class="pc"></th><th class="l">ITEM</th><th>SIZE</th>` +
+    let h = `<div class="tbl-wrap"><table><thead><tr><th class="l" colspan="2">ITEM</th><th>SIZE</th>` +
       cols.map(([, lab]) => `<th class="m">${lab}</th>`).join("") + (hasFit ? `<th>FIT</th>` : "") + `</tr></thead><tbody>`;
     list.forEach(e => {
       const fit = FIT[e.fit];
