@@ -2,7 +2,7 @@
 // 数据格式：{ tops:[条目], bottoms:[条目] }
 //   条目：{ img:"closet/ 下文件名(可选)", brand, item, size, fit:"ok|loose|tight",
 //          各围度 cm（可只记部分）, n:"备注(可选)" }
-//   tops 围度：bust 胸围 / shoulder 肩宽 / length 衣长 / sleeve 袖长
+//   tops 围度：bust 胸围 / shoulder 肩宽 / length 衣长(后中) / sleeve 袖长 / hem 下摆围 / cuff 袖口
 //   bottoms 围度：waist 腰围 / hips 臀围 / rise 前裆 / thigh 大腿围 / inseam 内长 / length 裤长
 // 图片放 assets/img/closet/（注意：图片本身不加密，仅数据加密）
 (function(){
@@ -21,7 +21,7 @@
     tight: ["fit-tight", "⬇️ Tight"],
   };
   const KEYS = {
-    tops:    [["bust","BUST"],["shoulder","SHOULDER"],["length","LENGTH"],["sleeve","SLEEVE"]],
+    tops:    [["bust","BUST"],["shoulder","SHOULDER"],["length","LENGTH"],["sleeve","SLEEVE"],["hem","HEM"],["cuff","CUFF"]],
     bottoms: [["waist","WAIST"],["hips","HIPS"],["rise","RISE"],["thigh","THIGH"],["inseam","INSEAM"],["length","LENGTH"]],
   };
 
@@ -34,7 +34,7 @@
     const meas = KEYS[cat].filter(([k]) => e[k] != null)
       .map(([k, lab]) => `<span class="mk"><i>${lab}</i>${f1(e[k])}</span>`).join("");
     return `<div class="it">
-      <div class="ph">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy">` : `<span class="noimg">${cat === "tops" ? "👕" : "👖"}</span>`}</div>
+      <div class="ph">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${cat === "tops" ? "👕" : "👖"}</span>`}</div>
       <div class="info">
         <div class="ttl"><b>${e.brand || ""}</b>${e.item || ""}${e.size ? `<span class="size">${e.size}</span>` : ""}${fit ? `<span class="fit ${fit[0]}">${fit[1]}</span>` : ""}</div>
         <div class="mrow">${meas || '<span class="mk none">no measurements</span>'}</div>
