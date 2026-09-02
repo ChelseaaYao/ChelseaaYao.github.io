@@ -1,6 +1,6 @@
 // Size Book —— 买过的衣服尺码参考（数据 assets/data/health/sizes.json，加密同 health）
 // 数据格式：{ long:[长袖], short:[短袖], bottoms:[裤子] }
-//   条目：{ img:"closet/ 下文件名(可选)", brand, item, size, fit:"ok|loose|tight",
+//   条目：{ img:"closet/ 下文件名(可选)", brand, item, size,
 //          各围度 cm（可只记部分）, n:"备注(可选)" }
 //   long/short 围度：bust 胸围 / shoulder 肩宽 / length 衣长(后中) / sleeve 袖长 / hem 下摆围 / cuff 袖口
 //   bottoms 围度：waist 腰围 / hips 臀围 / rise 前裆 / thigh 大腿围 / inseam 内长 / length 裤长
@@ -15,11 +15,6 @@
     : fetch(new URL(f, base)).then(r => r.json());
 
   const f1 = n => (Math.round(n * 10) / 10) + "";
-  const FIT = {
-    ok:    ["fit-ok", "✓ 合身"],
-    loose: ["fit-loose", "↑ 偏大"],
-    tight: ["fit-tight", "↓ 偏小"],
-  };
   const TOPK = [["bust","胸围"],["waist","腰围"],["shoulder","肩宽"],["length","衣长"],["sleeve","袖长"],["hem","下摆围"],["cuff","袖口"]];
   const KEYS = {
     long:    TOPK,
@@ -34,28 +29,23 @@
   // 分区表格：图 | 单品 | 尺码 | 各围度列 | 合身度（该分区没人记的围度列自动隐藏）
   function sectionTable(list, cat){
     const cols = KEYS[cat].filter(([k]) => list.some(e => e[k] != null));
-    const hasFit = list.some(e => FIT[e.fit]);   // 没人记合身度就不出这列
     let h = `<div class="tbl-wrap"><table><thead><tr><th class="l" colspan="2">ITEM</th><th>SIZE</th>` +
-      cols.map(([, lab]) => `<th class="m">${lab}</th>`).join("") + (hasFit ? `<th>FIT</th>` : "") + `</tr></thead><tbody>`;
+      cols.map(([, lab]) => `<th class="m">${lab}</th>`).join("") + `</tr></thead><tbody>`;
     list.forEach(e => {
-      const fit = FIT[e.fit];
       h += `<tr>
         <td class="pc">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${cat === "bottoms" ? "👖" : "👕"}</span>`}</td>
         <td class="l">${e.brand ? `<b>${e.brand}</b>` : ""}<div class="inm">${e.item || ""}</div>${e.n ? `<div class="nt">${e.n}</div>` : ""}</td>
         <td><span class="size">${e.size || "–"}</span></td>` +
-        cols.map(([k]) => `<td class="v">${e[k] != null ? f1(e[k]) : "–"}</td>`).join("") +
-        (hasFit ? `<td>${fit ? `<span class="fit ${fit[0]}">${fit[1]}</span>` : "–"}</td>` : "") + `</tr>`;
-
+        cols.map(([k]) => `<td class="v">${e[k] != null ? f1(e[k]) : "–"}</td>`).join("") + `</tr>`;
     });
     h += `</tbody></table></div>`;
 
     // 窄屏卡片版（CSS 按屏宽二选一显示）
     h += `<div class="mlist">` + list.map(e => {
-      const fit = FIT[e.fit];
       return `<div class="mit">
         <div class="ph">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${cat === "bottoms" ? "👖" : "👕"}</span>`}</div>
         <div class="info">
-          <div class="ttl">${e.brand ? `<b>${e.brand}</b>` : ""}${e.size ? `<span class="size">${e.size}</span>` : ""}${fit ? `<span class="fit ${fit[0]}">${fit[1]}</span>` : ""}</div>
+          <div class="ttl">${e.brand ? `<b>${e.brand}</b>` : ""}${e.size ? `<span class="size">${e.size}</span>` : ""}</div>
           <div class="inm">${e.item || ""}</div>
           <div class="mrow">${KEYS[cat].filter(([k]) => e[k] != null)
             .map(([k, lab]) => `<span class="mk"><i>${lab}</i>${f1(e[k])}</span>`).join("")}</div>
