@@ -45,7 +45,22 @@
         (hasFit ? `<td>${fit ? `<span class="fit ${fit[0]}">${fit[1]}</span>` : "–"}</td>` : "") + `</tr>`;
 
     });
-    return h + `</tbody></table></div>`;
+    h += `</tbody></table></div>`;
+
+    // 窄屏卡片版（CSS 按屏宽二选一显示）
+    h += `<div class="mlist">` + list.map(e => {
+      const fit = FIT[e.fit];
+      return `<div class="mit">
+        <div class="ph">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${cat === "tops" ? "👕" : "👖"}</span>`}</div>
+        <div class="info">
+          <div class="ttl">${e.brand ? `<b>${e.brand}</b>` : ""}${e.size ? `<span class="size">${e.size}</span>` : ""}${fit ? `<span class="fit ${fit[0]}">${fit[1]}</span>` : ""}</div>
+          <div class="inm">${e.item || ""}</div>
+          <div class="mrow">${KEYS[cat].filter(([k]) => e[k] != null)
+            .map(([k, lab]) => `<span class="mk"><i>${lab}</i>${f1(e[k])}</span>`).join("")}</div>
+          ${e.n ? `<div class="nt">${e.n}</div>` : ""}
+        </div></div>`;
+    }).join("") + `</div>`;
+    return h;
   }
 
   function render(sz, ms){
@@ -77,7 +92,7 @@
   lb.addEventListener("click", () => lb.classList.remove("on"));
   document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
   box.addEventListener("click", e => {
-    const img = e.target.closest(".ph img");
+    const img = e.target.closest(".ph img, td.pc img");
     if (!img) return;
     lb.querySelector("img").src = img.src;
     lb.classList.add("on");
