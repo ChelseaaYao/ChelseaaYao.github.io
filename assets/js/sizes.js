@@ -16,9 +16,9 @@
 
   const f1 = n => (Math.round(n * 10) / 10) + "";
   const FIT = {
-    ok:    ["fit-ok", "✅ 合身"],
-    loose: ["fit-loose", "⬆️ 偏大"],
-    tight: ["fit-tight", "⬇️ 偏小"],
+    ok:    ["fit-ok", "✓ 合身"],
+    loose: ["fit-loose", "↑ 偏大"],
+    tight: ["fit-tight", "↓ 偏小"],
   };
   const TOPK = [["bust","胸围"],["waist","腰围"],["shoulder","肩宽"],["length","衣长"],["sleeve","袖长"],["hem","下摆围"],["cuff","袖口"]];
   const KEYS = {
