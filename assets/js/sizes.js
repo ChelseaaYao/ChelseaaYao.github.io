@@ -1,9 +1,10 @@
 // Size Book —— 买过的衣服尺码参考（数据 assets/data/health/sizes.json，加密同 health）
-// 数据格式：{ long:[长袖], short:[短袖], bottoms:[裤子] }
+// 数据格式：{ long:[长袖], short:[短袖], pants:[长裤], shorts:[短裤], skirts:[半身裙] }
 //   条目：{ img:"closet/ 下文件名(可选)", brand, item, size,
 //          各围度 cm（可只记部分）, n:"备注(可选)" }
 //   long/short 围度：bust 胸围 / shoulder 肩宽 / length 衣长(后中) / sleeve 袖长 / hem 下摆围 / cuff 袖口
-//   bottoms 围度：waist 腰围 / hips 臀围 / rise 前裆 / thigh 大腿围 / inseam 内长 / length 裤长
+//   pants/shorts 围度：waist 腰围 / hips 臀围 / rise 前裆 / thigh 大腿围 / inseam 内长 / length 裤长
+//   skirts 围度：waist 腰围 / hips 臀围 / length 裙长 / hem 摆围
 // 图片放 assets/img/closet/（注意：图片本身不加密，仅数据加密）
 (function(){
   const box = document.getElementById("sizes");
@@ -16,10 +17,13 @@
 
   const f1 = n => (Math.round(n * 10) / 10) + "";
   const TOPK = [["length","衣长"],["bust","胸围"],["waist","腰围"],["shoulder","肩宽"],["sleeve","袖长"],["hem","下摆围"],["cuff","袖口"]];
+  const BTMK = [["waist","腰围"],["hips","臀围"],["rise","前裆"],["thigh","大腿围"],["inseam","内长"],["length","裤长"]];
   const KEYS = {
-    long:    TOPK,
-    short:   TOPK,
-    bottoms: [["waist","腰围"],["hips","臀围"],["rise","前裆"],["thigh","大腿围"],["inseam","内长"],["length","裤长"]],
+    long:   TOPK,
+    short:  TOPK,
+    pants:  BTMK,
+    shorts: BTMK,
+    skirts: [["waist","腰围"],["hips","臀围"],["length","裙长"],["hem","摆围"]],
   };
 
   Promise.all([load("sizes.json"), load("measurements.json").catch(() => [])])
@@ -33,7 +37,7 @@
       cols.map(([, lab]) => `<th class="m">${lab}</th>`).join("") + `</tr></thead><tbody>`;
     list.forEach(e => {
       h += `<tr>
-        <td class="pc">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${cat === "bottoms" ? "👖" : "👕"}</span>`}</td>
+        <td class="pc">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${{pants:"👖",shorts:"🩳",skirts:"👗"}[cat] || "👕"}</span>`}</td>
         <td class="l">${e.brand ? `<b>${e.brand}</b>` : ""}<div class="inm">${e.item || ""}</div>${e.n ? `<div class="nt">${e.n}</div>` : ""}</td>
         <td><span class="size">${e.size || "–"}</span></td>` +
         cols.map(([k]) => `<td class="v">${e[k] != null ? f1(e[k]) : "–"}</td>`).join("") + `</tr>`;
@@ -43,7 +47,7 @@
     // 窄屏卡片版（CSS 按屏宽二选一显示）
     h += `<div class="mlist">` + list.map(e => {
       return `<div class="mit">
-        <div class="ph">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${cat === "bottoms" ? "👖" : "👕"}</span>`}</div>
+        <div class="ph">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${{pants:"👖",shorts:"🩳",skirts:"👗"}[cat] || "👕"}</span>`}</div>
         <div class="info">
           <div class="ttl">${e.brand ? `<b>${e.brand}</b>` : ""}${e.size ? `<span class="size">${e.size}</span>` : ""}</div>
           <div class="inm">${e.item || ""}</div>
@@ -68,7 +72,8 @@
           .map(([k, lab]) => `<span class="mk"><i>${lab}</i>${f1(last[k])} cm</span>`).join("")}</div></div>`;
     }
 
-    [["long", "🧥&ensp;Long Sleeve"], ["short", "👕&ensp;T-Shirts"], ["bottoms", "👖&ensp;Bottoms"]].forEach(([cat, title]) => {
+    [["long", "🧥&ensp;Long Sleeve"], ["short", "👕&ensp;T-Shirts"],
+     ["pants", "👖&ensp;Pants"], ["shorts", "🩳&ensp;Shorts"], ["skirts", "👗&ensp;Skirts"]].forEach(([cat, title]) => {
       // 同品牌排在一起（品牌顺序按首次出现）
       const raw = sz[cat] || [];
       const bo = [...new Set(raw.map(e => e.brand || ""))];
