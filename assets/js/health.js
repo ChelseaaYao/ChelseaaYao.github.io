@@ -552,7 +552,7 @@
       }).join("");
       body = `<div class="chips meas">${chips}</div>${rows}`;
     }
-    return `<div class="card"><h2>📏&ensp;Body Check<span class="gp">${ms.length ? `${ms.length} logged · cm` : "cm"}</span></h2>${body}</div>`;
+    return `<div class="card"><h2>📏&ensp;Body Check<a class="szlink" href="sizes.html">👗 Size Book ↗</a><span class="gp">${ms.length ? `${ms.length} logged · cm` : "cm"}</span></h2>${body}</div>`;
   }
 
   // ── 月均体重：小折线图（按年份筛选），点按环比涨跌着色，数值直接标在点上 ──
