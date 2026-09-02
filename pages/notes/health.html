@@ -187,10 +187,16 @@
     scroll-snap-type:y proximity;overscroll-behavior:contain;scrollbar-width:none;}
   .calscroll::-webkit-scrollbar{display:none;}
   .calmonth{scroll-snap-align:start;padding-bottom:4px;}
-  /* 围度卡：chip 里的单位和环比 + Size Book 入口 */
-  h2 .szlink{margin-left:14px;font-size:12px;color:var(--muted);text-decoration:none;
-    border:1px solid var(--line);border-radius:20px;padding:3px 12px;transition:all .15s ease;}
-  h2 .szlink:hover{color:var(--cd);border-color:var(--cd);}
+  /* 围度卡：chip 里的单位和环比 */
+  /* Size Book 大入口卡（页面底部） */
+  .szcard{display:flex;align-items:center;gap:16px;text-decoration:none;color:var(--ink);
+    padding:20px 22px;transition:border-color .15s ease;}
+  .szcard .ic{font-size:30px;line-height:1;}
+  .szcard .t{display:block;font-family:var(--serif);font-size:19px;letter-spacing:.5px;}
+  .szcard .s{display:block;font-size:11px;color:var(--muted);letter-spacing:1.2px;margin-top:3px;}
+  .szcard .arr{margin-left:auto;font-size:22px;color:var(--muted);transition:transform .15s ease,color .15s ease;}
+  .szcard:hover{border-color:var(--cd);}
+  .szcard:hover .arr{transform:translateX(5px);color:var(--cd);}
   .chip .mu{font-style:normal;font-size:10px;color:var(--muted);font-weight:400;margin-left:3px;}
   .chip .md{font-size:11px;font-weight:700;margin-left:6px;}
   .chip .md.good{color:var(--sy);}
