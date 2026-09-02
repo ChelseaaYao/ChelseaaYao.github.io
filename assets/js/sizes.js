@@ -32,8 +32,9 @@
   // 分区表格：图 | 单品 | 尺码 | 各围度列 | 合身度（该分区没人记的围度列自动隐藏）
   function sectionTable(list, cat){
     const cols = KEYS[cat].filter(([k]) => list.some(e => e[k] != null));
+    const hasFit = list.some(e => FIT[e.fit]);   // 没人记合身度就不出这列
     let h = `<div class="tbl-wrap"><table><thead><tr><th class="pc"></th><th class="l">ITEM</th><th>SIZE</th>` +
-      cols.map(([, lab]) => `<th class="m">${lab}</th>`).join("") + `<th>FIT</th></tr></thead><tbody>`;
+      cols.map(([, lab]) => `<th class="m">${lab}</th>`).join("") + (hasFit ? `<th>FIT</th>` : "") + `</tr></thead><tbody>`;
     list.forEach(e => {
       const fit = FIT[e.fit];
       h += `<tr>
@@ -41,7 +42,7 @@
         <td class="l">${e.brand ? `<b>${e.brand}</b>` : ""}<div class="inm">${e.item || ""}</div>${e.n ? `<div class="nt">${e.n}</div>` : ""}</td>
         <td><span class="size">${e.size || "–"}</span></td>` +
         cols.map(([k]) => `<td class="v">${e[k] != null ? f1(e[k]) : "–"}</td>`).join("") +
-        `<td>${fit ? `<span class="fit ${fit[0]}">${fit[1]}</span>` : "–"}</td></tr>`;
+        (hasFit ? `<td>${fit ? `<span class="fit ${fit[0]}">${fit[1]}</span>` : "–"}</td>` : "") + `</tr>`;
 
     });
     return h + `</tbody></table></div>`;
