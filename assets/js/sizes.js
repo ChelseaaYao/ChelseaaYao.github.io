@@ -16,30 +16,35 @@
 
   const f1 = n => (Math.round(n * 10) / 10) + "";
   const FIT = {
-    ok:    ["fit-ok", "✅ Fits"],
-    loose: ["fit-loose", "⬆️ Loose"],
-    tight: ["fit-tight", "⬇️ Tight"],
+    ok:    ["fit-ok", "✅ 合身"],
+    loose: ["fit-loose", "⬆️ 偏大"],
+    tight: ["fit-tight", "⬇️ 偏小"],
   };
   const KEYS = {
-    tops:    [["bust","BUST"],["waist","WAIST"],["shoulder","SHOULDER"],["length","LENGTH"],["sleeve","SLEEVE"],["hem","HEM"],["cuff","CUFF"]],
-    bottoms: [["waist","WAIST"],["hips","HIPS"],["rise","RISE"],["thigh","THIGH"],["inseam","INSEAM"],["length","LENGTH"]],
+    tops:    [["bust","胸围"],["waist","腰围"],["shoulder","肩宽"],["length","衣长"],["sleeve","袖长"],["hem","下摆围"],["cuff","袖口"]],
+    bottoms: [["waist","腰围"],["hips","臀围"],["rise","前裆"],["thigh","大腿围"],["inseam","内长"],["length","裤长"]],
   };
 
   Promise.all([load("sizes.json"), load("measurements.json").catch(() => [])])
     .then(([sz, ms]) => render(sz, ms))
     .catch(() => { box.innerHTML = '<div class="empty">Failed to load — open via the website, not file:// 👗</div>'; });
 
-  function itemCard(e, cat){
-    const fit = FIT[e.fit];
-    const meas = KEYS[cat].filter(([k]) => e[k] != null)
-      .map(([k, lab]) => `<span class="mk"><i>${lab}</i>${f1(e[k])}</span>`).join("");
-    return `<div class="it">
-      <div class="ph">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${cat === "tops" ? "👕" : "👖"}</span>`}</div>
-      <div class="info">
-        <div class="ttl"><b>${e.brand || ""}</b>${e.item || ""}${e.size ? `<span class="size">${e.size}</span>` : ""}${fit ? `<span class="fit ${fit[0]}">${fit[1]}</span>` : ""}</div>
-        <div class="mrow">${meas || '<span class="mk none">no measurements</span>'}</div>
-        ${e.n ? `<div class="nt">${e.n}</div>` : ""}
-      </div></div>`;
+  // 分区表格：图 | 单品 | 尺码 | 各围度列 | 合身度（该分区没人记的围度列自动隐藏）
+  function sectionTable(list, cat){
+    const cols = KEYS[cat].filter(([k]) => list.some(e => e[k] != null));
+    let h = `<div class="tbl-wrap"><table><thead><tr><th class="pc"></th><th class="l">ITEM</th><th>SIZE</th>` +
+      cols.map(([, lab]) => `<th>${lab}</th>`).join("") + `<th>FIT</th></tr></thead><tbody>`;
+    list.forEach(e => {
+      const fit = FIT[e.fit];
+      h += `<tr>
+        <td class="pc">${e.img ? `<img src="../../assets/img/closet/${e.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="noimg">${cat === "tops" ? "👕" : "👖"}</span>`}</td>
+        <td class="l"><b>${e.brand ? e.brand + " " : ""}</b>${e.item || ""}${e.n ? `<div class="nt">${e.n}</div>` : ""}</td>
+        <td><span class="size">${e.size || "–"}</span></td>` +
+        cols.map(([k]) => `<td class="v">${e[k] != null ? f1(e[k]) : "–"}</td>`).join("") +
+        `<td>${fit ? `<span class="fit ${fit[0]}">${fit[1]}</span>` : "–"}</td></tr>`;
+
+    });
+    return h + `</tbody></table></div>`;
   }
 
   function render(sz, ms){
@@ -49,7 +54,7 @@
     const sorted = (ms || []).slice().sort((a, b) => new Date(a.d.replace(/\./g, "/")) - new Date(b.d.replace(/\./g, "/")));
     const last = sorted[sorted.length - 1];
     if (last){
-      const MK = [["bust","BUST"],["waist","WAIST"],["hips","HIPS"],["thigh","THIGH"],["arm","ARM"],["calf","CALF"]];
+      const MK = [["bust","胸围"],["waist","腰围"],["hips","臀围"],["thigh","大腿围"],["arm","上臂围"],["calf","小腿围"]];
       html += `<div class="card"><h2>📏&ensp;My Latest<span class="gp">from Body Check · ${last.d.split(".").slice(1).join(".")}</span></h2>
         <div class="mrow my">${MK.filter(([k]) => last[k] != null)
           .map(([k, lab]) => `<span class="mk"><i>${lab}</i>${f1(last[k])} cm</span>`).join("")}</div></div>`;
@@ -58,8 +63,7 @@
     [["tops", "👕&ensp;Tops"], ["bottoms", "👖&ensp;Bottoms"]].forEach(([cat, title]) => {
       const list = sz[cat] || [];
       html += `<div class="card"><h2>${title}<span class="gp">${list.length} items</span></h2>
-        ${list.length ? `<div class="grid">${list.map(e => itemCard(e, cat)).join("")}</div>`
-          : '<div class="empty">Nothing here yet 🛍️</div>'}</div>`;
+        ${list.length ? sectionTable(list, cat) : '<div class="empty">Nothing here yet 🛍️</div>'}</div>`;
     });
     box.innerHTML = html;
   }
