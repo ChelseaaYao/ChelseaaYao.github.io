@@ -69,7 +69,10 @@
     }
 
     [["long", "🧥&ensp;Long Sleeve"], ["short", "👕&ensp;Short Sleeve"], ["bottoms", "👖&ensp;Bottoms"]].forEach(([cat, title]) => {
-      const list = sz[cat] || [];
+      // 同品牌排在一起（品牌顺序按首次出现）
+      const raw = sz[cat] || [];
+      const bo = [...new Set(raw.map(e => e.brand || ""))];
+      const list = raw.slice().sort((a, b) => bo.indexOf(a.brand || "") - bo.indexOf(b.brand || ""));
       html += `<div class="card"><h2>${title}<span class="gp">${list.length} items</span></h2>
         ${list.length ? sectionTable(list, cat) : '<div class="empty">Nothing here yet 🛍️</div>'}</div>`;
     });
