@@ -22,7 +22,7 @@
   /* 尺码表格（参考电商尺码表） */
   .tbl-wrap{overflow-x:auto;margin:2px -4px 4px;}
   table{width:100%;border-collapse:collapse;}
-  th{font-size:10.5px;color:var(--muted);font-weight:400;letter-spacing:1px;text-align:center;
+  th{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:1px;text-align:center;
     padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;}
   td{padding:10px;text-align:center;border-bottom:1px dashed var(--line);font-size:13.5px;}
   tr:last-child td{border-bottom:none;}
@@ -31,6 +31,7 @@
   td.l b{font-weight:700;display:block;}
   td.l .inm{margin-top:2px;}
   td.v{font-family:var(--serif);font-weight:700;font-size:14.5px;letter-spacing:.3px;}
+  th.m + th.m,td.v + td.v{border-left:1px dashed var(--line);}
   td.pc{width:104px;padding:10px 4px 10px 4px;}
   td.pc img{width:92px;height:115px;object-fit:cover;border-radius:10px;cursor:zoom-in;
     display:block;transition:transform .2s ease;}

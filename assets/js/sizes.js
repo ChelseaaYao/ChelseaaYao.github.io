@@ -33,7 +33,7 @@
   function sectionTable(list, cat){
     const cols = KEYS[cat].filter(([k]) => list.some(e => e[k] != null));
     let h = `<div class="tbl-wrap"><table><thead><tr><th class="pc"></th><th class="l">ITEM</th><th>SIZE</th>` +
-      cols.map(([, lab]) => `<th>${lab}</th>`).join("") + `<th>FIT</th></tr></thead><tbody>`;
+      cols.map(([, lab]) => `<th class="m">${lab}</th>`).join("") + `<th>FIT</th></tr></thead><tbody>`;
     list.forEach(e => {
       const fit = FIT[e.fit];
       h += `<tr>
