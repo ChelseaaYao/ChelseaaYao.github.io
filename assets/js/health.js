@@ -313,7 +313,13 @@
         }
       }
       if (t){
-        tip.innerHTML = t.dataset.tip;   // data-tip 允许带简单标签（全部由本文件生成）
+        let html = t.dataset.tip;   // data-tip 允许带简单标签（全部由本文件生成）
+        // 体重图的提示按图例开关过滤：关掉的线不显示对应数字（tv=体重行 tm=均线行）
+        const cw = t.closest(".chart-wrap");
+        if (cw) html = html.split("\n").filter(l =>
+          !(cw.classList.contains("hide-w") && l.includes("class='tv'")) &&
+          !(cw.classList.contains("hide-m") && l.includes("class='tm'"))).join("\n");
+        tip.innerHTML = html;
         tip.style.left = e.clientX + 14 + "px";
         tip.style.top = e.clientY + 16 + "px";
         tip.classList.add("on");
