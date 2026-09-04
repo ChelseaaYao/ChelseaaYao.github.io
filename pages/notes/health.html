@@ -100,9 +100,17 @@
   .legend .lm{border-top-style:dashed;border-color:var(--fly);}
   .legend .lp{border-top-style:dashed;border-color:var(--jp);}
   .legend .lg{border-top-style:dashed;border-color:var(--sy);}
-  /* 图例开关：可点击显隐对应线条，熄灭时变暗 */
+  /* 图例开关：色块是对应颜色的小拨杆，点击显隐对应线条 */
   .legend .lgt{cursor:pointer;user-select:none;transition:opacity .15s ease;}
-  .legend .lgt:not(.on){opacity:.32;}
+  .legend .lgt i{width:26px;height:15px;border:none;border-radius:8px;position:relative;
+    background:#3a3f46;transition:background .2s ease;}
+  .legend .lgt i::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;
+    border-radius:50%;background:#fff;opacity:.92;transition:left .2s ease;}
+  .legend .lgt.on i::after{left:13px;}
+  .legend .lgt.on .lw{background:var(--cd);}
+  .legend .lgt.on .lm{background:var(--fly);}
+  .legend .lgt.on .lp{background:var(--jp);}
+  .legend .lgt:not(.on){opacity:.55;}
   .chart-wrap.hide-w .line,.chart-wrap.hide-w .area,.chart-wrap.hide-w .dot{display:none;}
   .chart-wrap.hide-m .ma{display:none;}
   .chart-wrap.hide-p .pmark,.chart-wrap.hide-p .pflower{display:none;}
