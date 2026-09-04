@@ -135,7 +135,7 @@
       <div class="card"><h2>📉&ensp;Weight Trend
         <span class="rtabs">${["All","3M","30D"].map((t, i) => `<span class="rt${i === 1 ? " on" : ""}" data-r="${i}">${t}</span>`).join("")}</span>
       </h2><div class="chart-wrap" id="wchart"></div>
-      <div class="legend"><span><i class="lw"></i>Weight</span><span><i class="lm"></i>7-pt avg</span>${starts.length ? '<span><i class="lp"></i>Period</span>' : ""}${goal ? '<span><i class="lg"></i>Goal</span>' : ""}</div></div>
+      <div class="legend"><span class="lgt on" data-s="w"><i class="lw"></i>Weight</span><span class="lgt on" data-s="m"><i class="lm"></i>7-pt avg</span>${starts.length ? '<span class="lgt on" data-s="p"><i class="lp"></i>Period</span>' : ""}${goal ? '<span><i class="lg"></i>Goal</span>' : ""}</div></div>
       <div id="mcard">${monthCard(es, +last.d.split(".")[0])}</div>
       <div class="card"><h2>📋&ensp;<span class="calm-cur" id="calm-cur"></span>
         <span class="gp" id="lg-count">${es.length} entries</span>
@@ -164,6 +164,12 @@
     box.querySelectorAll(".rt").forEach(el => el.addEventListener("click", () => {
       box.querySelectorAll(".rt").forEach(x => x.classList.toggle("on", x === el));
       draw(+el.dataset.r);
+    }));
+
+    // 图例开关：点击显示/隐藏对应线条（类挂在容器上，切换范围重绘不丢状态）
+    box.querySelectorAll(".lgt").forEach(el => el.addEventListener("click", () => {
+      el.classList.toggle("on");
+      document.getElementById("wchart").classList.toggle("hide-" + el.dataset.s, !el.classList.contains("on"));
     }));
 
     // 月均卡年份切换（数据跨年后自动多出年份标签）

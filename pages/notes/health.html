@@ -100,6 +100,12 @@
   .legend .lm{border-top-style:dashed;border-color:var(--fly);}
   .legend .lp{border-top-style:dashed;border-color:var(--jp);}
   .legend .lg{border-top-style:dashed;border-color:var(--sy);}
+  /* 图例开关：可点击显隐对应线条，熄灭时变暗 */
+  .legend .lgt{cursor:pointer;user-select:none;transition:opacity .15s ease;}
+  .legend .lgt:not(.on){opacity:.32;}
+  .chart-wrap.hide-w .line,.chart-wrap.hide-w .area,.chart-wrap.hide-w .dot{display:none;}
+  .chart-wrap.hide-m .ma{display:none;}
+  .chart-wrap.hide-p .pmark,.chart-wrap.hide-p .pflower{display:none;}
 
   /* 生理周期卡 */
   .chips{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px;padding:12px 2px 10px;}
