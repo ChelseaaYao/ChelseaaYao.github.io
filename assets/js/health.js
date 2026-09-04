@@ -270,9 +270,9 @@
       const mk = el.dataset.m;
       setTab(mk);
       drawRecs(mk);
+      drawStats(mk);   // All（mk 为空）= 全量统计
       if (mk){
         curMk = mk;
-        drawStats(mk);
         setLab(mk);
         const t = sc.querySelector(`.calmonth[data-mk="${mk}"]`);
         if (t){ lockUntil = Date.now() + 800; sc.scrollTo({ top: t.offsetTop, behavior: "smooth" }); }
@@ -658,12 +658,12 @@
     return `<div class="calwrap"><div class="calgrid">${s}</div></div>`;
   }
 
-  // ── 月统计条：平均 / 最大 / 最小 / 变化（首末记录差）——固定在月历滚动区外，随当前月更新 ──
+  // ── 月统计条：平均 / 最大 / 最小 / 变化（首末记录差）——固定在月历滚动区外，随当前月更新；mk 为空 = 全量 ──
   function mstats(es, mk){
-    const ws = es.filter(e => e.d.startsWith(mk + ".")).map(e => e.w);
+    const ws = (mk ? es.filter(e => e.d.startsWith(mk + ".")) : es).map(e => e.w);
     if (!ws.length) return "";
     const chg = ws[ws.length - 1] - ws[0];
-    const mw = WLOGS.filter(w => w.d.startsWith(mk + "."));   // 当月运动
+    const mw = mk ? WLOGS.filter(w => w.d.startsWith(mk + ".")) : WLOGS;   // 当月（或全部）运动
     return `<div class="mstats">
       <div class="ms"><span class="k">AVG</span><b class="hl">${f2(ws.reduce((s, v) => s + v, 0) / ws.length)}</b></div>
       <div class="ms"><span class="k">MAX</span><b>${f2(Math.max(...ws))}</b></div>
