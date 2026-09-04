@@ -112,6 +112,14 @@
   .legend .lgt.on .lp{background:var(--jp);}
   .legend .lgt:not(.on){opacity:.55;}
   .chart-wrap.hide-w .line,.chart-wrap.hide-w .area,.chart-wrap.hide-w .dot{display:none;}
+  .chart-wrap.hide-w .extdot,.chart-wrap.hide-w .extlab{display:none;}
+  /* 30D 最高/最低点标注 */
+  .chart .extdot{fill:none;stroke-width:1.6;pointer-events:none;}
+  .chart .extdot.hi{stroke:#f4949a;}
+  .chart .extdot.lo{stroke:#7ec99a;}
+  .chart .extlab{font-size:10.5px;font-weight:700;font-family:var(--serif);}
+  .chart .extlab.hi{fill:#f4949a;}
+  .chart .extlab.lo{fill:#7ec99a;}
   .chart-wrap.hide-m .ma{display:none;}
   .chart-wrap.hide-p .pmark,.chart-wrap.hide-p .pflower{display:none;}
 

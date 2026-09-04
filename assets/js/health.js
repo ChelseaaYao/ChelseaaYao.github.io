@@ -155,7 +155,7 @@
     const draw = r => {
       const from = r === 1 ? dnum(last.d) - 92 * DAY : r === 2 ? dnum(last.d) - 30 * DAY : -Infinity;
       const w = document.getElementById("wchart");
-      w.innerHTML = chart(es.filter(e => dnum(e.d) >= from), goal, sdates);
+      w.innerHTML = chart(es.filter(e => dnum(e.d) >= from), goal, sdates, r === 2);
       w.scrollLeft = w.scrollWidth;   // 移动端横滑时默认停在最新数据
     };
     draw(1);   // 默认近 3 月，全程太密
@@ -348,7 +348,7 @@
   }
 
   // ── 体重折线图：x 按真实日期，叠加 7 次滑动均线、经期标记、目标虚线 ──
-  function chart(es, goal, starts){
+  function chart(es, goal, starts, extremes){
     if (es.length < 2) return '<div class="empty">Not enough data in range</div>';
     const W = 720, H = 310, L = 46, R = 16, T = 20, B = 36;
     const t0 = dnum(es[0].d), t1 = dnum(es[es.length - 1].d), span = Math.max(t1 - t0, 1);
@@ -408,6 +408,16 @@
     es.forEach((e, i) => {
       s += `<circle cx="${x(dnum(e.d))}" cy="${y(e.w)}" r="8" class="hit" data-tip="${e.d.split(".").slice(1).join(".")} ${WK[ddate(e.d).getDay()]}&#10;<b class='tv'>${f2(e.w)} ${UNIT}</b>${trend(e.w, es[i - 1]?.w)}&#10;<b class='tm'>${f2(maVals[i])} ${UNIT}</b>${trend(maVals[i], maVals[i - 1])}"/>`;
     });
+    // 30D 视图：标注区间最高/最低点（并列时取最近一次）
+    if (extremes && es.length > 1){
+      const iHi = es.reduce((b, e, i) => e.w >= es[b].w ? i : b, 0);
+      const iLo = es.reduce((b, e, i) => e.w <= es[b].w ? i : b, 0);
+      if (iHi !== iLo) [[iHi, "hi", -9], [iLo, "lo", 17]].forEach(([i, cls, dy]) => {
+        const e = es[i], xx = x(dnum(e.d)), yy = y(e.w);
+        s += `<circle cx="${xx.toFixed(1)}" cy="${yy.toFixed(1)}" r="5" class="extdot ${cls}"/>
+              <text x="${Math.min(Math.max(xx, L + 20), W - R - 20).toFixed(1)}" y="${(yy + dy).toFixed(1)}" text-anchor="middle" class="extlab ${cls}">${f2(e.w)}</text>`;
+      });
+    }
     s += `<line class="xhair" x1="0" x2="0" y1="${T}" y2="${H - B}" style="display:none"/>`;
     return `<svg class="chart wchart" viewBox="0 0 ${W} ${H}">${s}</svg>`;
   }
