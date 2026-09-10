@@ -564,18 +564,21 @@
       const chips = KEYS.filter(([k]) => last[k] != null).map(([k, lab]) => {
         const df = prev && prev[k] != null ? last[k] - prev[k] : null;
         const zero = df !== null && Math.abs(df) < 0.05;
-        const md = df === null ? `<span class="md mut">—</span>`
+        const md = df === null ? ""
           : `<span class="md ${zero ? "" : df < 0 ? "good" : "bad"}">${zero ? "→ 0" : (df < 0 ? "⬇️ " : "⬆️ ") + f1(Math.abs(df))}</span>`;
         return `<div class="chip"><span class="ck">${lab}</span><span class="cv">${f1(last[k])}<i class="mu">cm</i></span>${md}</div>`;
       }).join("");
-      const rows = sorted.slice().reverse().map(e => {
+      // 只有一条记录时历史列表和 chips 完全重复，不显示
+      const rows = sorted.length < 2 ? "" : sorted.slice().reverse().map(e => {
         const dt = ddate(e.d);
         return `<div class="row"><span class="d">${dshow(e.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
           <span class="n">${KEYS.filter(([k]) => e[k] != null).map(([k, lab]) => `${lab} ${f1(e[k])}`).join(" · ")}</span></div>`;
       }).join("");
       body = `<div class="chips meas">${chips}</div>${rows}`;
     }
-    return `<div class="card"><h2>📏&ensp;Body Check<span class="gp">${ms.length ? `${ms.length} logged · cm` : "cm"}</span></h2>${body}</div>
+    const sorted0 = ms.slice().sort((a, b) => dnum(a.d) - dnum(b.d));
+    const sub = !ms.length ? "cm" : ms.length === 1 ? `${dshow(sorted0[0].d)} · cm` : `${ms.length} logged · cm`;
+    return `<div class="card"><h2>📏&ensp;Body Check<span class="gp">${sub}</span></h2>${body}</div>
       <a class="card szcard" href="sizes.html"><span class="ic">👗</span>
         <span><span class="t">Size Book</span><span class="s">CLOTHING SIZE REFERENCE</span></span>
         <span class="arr">→</span></a>`;
