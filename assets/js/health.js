@@ -564,8 +564,9 @@
       const chips = KEYS.filter(([k]) => last[k] != null).map(([k, lab]) => {
         const df = prev && prev[k] != null ? last[k] - prev[k] : null;
         const zero = df !== null && Math.abs(df) < 0.05;
-        return `<div class="chip"><span class="ck">${lab}</span><span class="cv">${f1(last[k])}<i class="mu">cm</i>${
-          df === null ? "" : `<span class="md ${zero ? "" : df < 0 ? "good" : "bad"}">${zero ? "→" : df < 0 ? "⬇️" : "⬆️"}${zero ? "" : " " + f1(Math.abs(df))}</span>`}</span></div>`;
+        const md = df === null ? `<span class="md mut">—</span>`
+          : `<span class="md ${zero ? "" : df < 0 ? "good" : "bad"}">${zero ? "→ 0" : (df < 0 ? "⬇️ " : "⬆️ ") + f1(Math.abs(df))}</span>`;
+        return `<div class="chip"><span class="ck">${lab}</span><span class="cv">${f1(last[k])}<i class="mu">cm</i></span>${md}</div>`;
       }).join("");
       const rows = sorted.slice().reverse().map(e => {
         const dt = ddate(e.d);

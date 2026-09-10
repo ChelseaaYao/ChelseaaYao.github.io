@@ -223,7 +223,12 @@
   .chip .md{font-size:11px;font-weight:700;margin-left:6px;}
   .chip .md.good{color:var(--sy);}
   .chip .md.bad{color:var(--jp);}
-  .chips.meas{padding-bottom:12px;}
+  /* Body Check：自适应网格（窄屏自动换行），标签/数值/涨跌上下分层 */
+  .chips.meas{grid-auto-flow:row;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));padding-bottom:12px;}
+  .chips.meas .chip{padding:11px 8px 9px;gap:3px;}
+  .chips.meas .cv{font-size:19px;}
+  .chips.meas .md{margin-left:0;}
+  .chips.meas .md.mut{color:var(--muted);font-weight:400;opacity:.55;}
 
   /* 当前月标签（Logs 卡片标题位）：切月时向下翻入 */
   .calm-cur{overflow:hidden;display:inline-block;vertical-align:bottom;font-family:var(--serif);}
