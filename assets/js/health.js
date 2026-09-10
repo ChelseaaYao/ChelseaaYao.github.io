@@ -553,31 +553,29 @@
       <div class="legend cen"><span><i class="hle"></i>雌激素</span><span><i class="hll"></i>黄体生成素</span><span><i class="hlp"></i>孕激素</span></div>`;
   }
 
-  // ── 围度卡：最新一次测量的各部位 chip（带环比箭头）+ 历史记录列表 ──
+  // ── 围度卡：日期表格（行=每次测量 新→旧，列=有数据的围度，数值带环比着色）──
   function measCard(ms){
     const KEYS = [["bust","BUST"],["waist","WAIST"],["hips","HIPS"],["thigh","THIGH"],["arm","ARM"],["calf","CALF"]];
     let body;
     if (!ms.length) body = '<div class="empty">No data yet 📏</div>';
     else {
       const sorted = ms.slice().sort((a, b) => dnum(a.d) - dnum(b.d));
-      const last = sorted[sorted.length - 1], prev = sorted[sorted.length - 2];
-      const chips = KEYS.filter(([k]) => last[k] != null).map(([k, lab]) => {
-        const df = prev && prev[k] != null ? last[k] - prev[k] : null;
-        const zero = df !== null && Math.abs(df) < 0.05;
-        const md = df === null ? ""
-          : `<span class="md ${zero ? "" : df < 0 ? "good" : "bad"}">${zero ? "→ 0" : (df < 0 ? "⬇️ " : "⬆️ ") + f1(Math.abs(df))}</span>`;
-        return `<div class="chip"><span class="ck">${lab}</span><span class="cv">${f1(last[k])}<i class="mu">cm</i></span>${md}</div>`;
-      }).join("");
-      // 只有一条记录时历史列表和 chips 完全重复，不显示
-      const rows = sorted.length < 2 ? "" : sorted.slice().reverse().map(e => {
-        const dt = ddate(e.d);
-        return `<div class="row"><span class="d">${dshow(e.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
-          <span class="n">${KEYS.filter(([k]) => e[k] != null).map(([k, lab]) => `${lab} ${f1(e[k])}`).join(" · ")}</span></div>`;
-      }).join("");
-      body = `<div class="chips meas">${chips}</div>${rows}`;
+      const cols = KEYS.filter(([k]) => ms.some(e => e[k] != null));
+      body = `<div class="tblw"><table class="mtbl"><thead><tr><th class="l">DATE</th>${
+        cols.map(([, lab]) => `<th>${lab}</th>`).join("")}</tr></thead><tbody>` +
+        sorted.slice().reverse().map((e, ri, arr) => {
+          const prev = arr[ri + 1];   // 倒序里下一行就是更早一次
+          const dt = ddate(e.d);
+          return `<tr><td class="l">${dshow(e.d)}<span class="dwk">${WK[dt.getDay()]}</span></td>` +
+            cols.map(([k]) => {
+              if (e[k] == null) return `<td class="mut">–</td>`;
+              const df = prev && prev[k] != null ? e[k] - prev[k] : null;
+              const cls = df === null || Math.abs(df) < 0.05 ? "" : df < 0 ? " good" : " bad";
+              return `<td class="${cls}">${f1(e[k])}</td>`;
+            }).join("") + `</tr>`;
+        }).join("") + `</tbody></table></div>`;
     }
-    const sorted0 = ms.slice().sort((a, b) => dnum(a.d) - dnum(b.d));
-    const sub = !ms.length ? "cm" : ms.length === 1 ? `${dshow(sorted0[0].d)} · cm` : `${ms.length} logged · cm`;
+    const sub = !ms.length ? "cm" : `${ms.length} logged · cm`;
     return `<div class="card"><h2>📏&ensp;Body Check<span class="gp">${sub}</span></h2>${body}</div>
       <a class="card szcard" href="sizes.html"><span class="ic">👗</span>
         <span><span class="t">Size Book</span><span class="s">CLOTHING SIZE REFERENCE</span></span>

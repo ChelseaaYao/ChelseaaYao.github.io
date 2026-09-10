@@ -223,11 +223,20 @@
   .chip .md{font-size:11px;font-weight:700;margin-left:6px;}
   .chip .md.good{color:var(--sy);}
   .chip .md.bad{color:var(--jp);}
-  /* Body Check：紧凑 chip 流式排列（不拉伸铺满），标签/数值/涨跌上下分层 */
-  .chips.meas{display:flex;flex-wrap:wrap;gap:10px;padding-bottom:12px;}
-  .chips.meas .chip{flex:1 1 96px;max-width:150px;padding:11px 10px 9px;gap:3px;}
-  .chips.meas .cv{font-size:19px;}
-  .chips.meas .md{margin-left:0;}
+  /* Body Check：日期表格（比上次降=绿 涨=粉，窄屏横向滚动） */
+  .tblw{overflow-x:auto;}
+  .mtbl{width:100%;border-collapse:collapse;margin:6px 0 2px;}
+  .mtbl th{font-size:10px;color:var(--muted);letter-spacing:1.2px;font-weight:600;
+    text-align:center;padding:7px 10px;border-bottom:1px solid var(--line);}
+  .mtbl td{text-align:center;padding:8px 10px;font-family:var(--serif);
+    font-weight:700;font-size:14.5px;border-bottom:1px dashed var(--line);}
+  .mtbl tr:last-child td{border-bottom:none;}
+  .mtbl th.l,.mtbl td.l{text-align:left;}
+  .mtbl td.l{font-family:inherit;font-weight:400;font-size:12.5px;color:var(--muted);white-space:nowrap;}
+  .mtbl .dwk{margin-left:7px;font-size:10.5px;opacity:.8;}
+  .mtbl td.mut{color:var(--muted);font-weight:400;}
+  .mtbl td.good{color:var(--sy);}
+  .mtbl td.bad{color:var(--jp);}
 
   /* 当前月标签（Logs 卡片标题位）：切月时向下翻入 */
   .calm-cur{overflow:hidden;display:inline-block;vertical-align:bottom;font-family:var(--serif);}
