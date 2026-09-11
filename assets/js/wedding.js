@@ -19,6 +19,7 @@ const WEDDING_PLAN = [
   {
     title: "🎨&ensp;Planning",
     color: "var(--jp)",
+    pscout: true,   // 策划考察内容挂在这一块下面
     sections: [
       { name:"🎪&ensp;Decor",       items:["宴会布置", "流程安排", "花艺"] },
       { name:"📷&ensp;Photography", items:["跟拍摄影师", "摄像（optional）"] },
@@ -42,7 +43,7 @@ const VENUE_SCOUT = {
   medals: ["🥇", "🥈", "🥉", "4️⃣"],   // 按 hotels 顺序即排名
   hotels: [
     {
-      name: "盛美利亚", rec: "⭐⭐⭐⭐⭐",
+      name: "盛美利亚", rec: "⭐⭐⭐⭐⭐", chosen: true,
       photos: [   // 路径相对 pages/plan/wedding.html
         { src: "../../assets/img/wedding/melia-entrance.jpg",  alt: "酒店正门" },
         { src: "../../assets/img/wedding/melia-aerial.jpg",    alt: "锦城湖畔全貌" },
@@ -80,23 +81,6 @@ const VENUE_SCOUT = {
       cons: ["客房最贵（约 ¥1500+/晚）", "厅型狭长，并排桌需错开摆放", "靠窗一面有大承重柱", "无舞台", "茶歇需另包厅：¥3000 含茶水 + 4 台机麻", "序厅过道窄、无自然采光", "不保证化妆间", "停车场太大，不易找车位"],
     },
     {
-      name: "首座万豪（in99 对面）", rec: "⭐⭐⭐⭐☆",
-      photos: [
-        { src: "../../assets/img/wedding/marriott-ballroom.jpg", alt: "宴会厅实拍" },
-      ],
-      meta: ["档次 ⭐⭐⭐", "价格 $$", "LED ❌", "停车 ⭐⭐⭐"],
-      price: "宴席 ¥4000/桌起 · 客房 ¥900/间",
-      secs: [
-        { h: "📅 档期", items: ["12 月目前全部可订；二楼宴会厅，容纳约 200–300 人"] },
-        { h: "🏛️ 场地", items: ["推荐 6–8 桌，10 桌以下可包厅；舞台、背景需自行搭建"] },
-        { h: "🅿️ 停车", items: ["与写字楼共用地下车库，免费 2 小时"] },
-        { h: "🎁 赠送", items: ["下午茶甜点、饮料"] },
-        { h: "🌿 环境", items: ["位于商业街，周边景观一般"] },
-      ],
-      pros: ["四家中性价比最高", "无场地费", "客房便宜（约 ¥900）", "商圈位置方便"],
-      cons: ["酒店档次一般", "舞台需自行搭建", "周边景观普通", "免费停车仅 2 小时"],
-    },
-    {
       name: "木棉花酒店", rec: "⭐⭐⭐",
       meta: ["档次 ⭐⭐⭐⭐", "价格 $$$", "LED ❌", "停车 ⭐⭐⭐"],
       price: "宴席约 ¥53xx/桌起 · 服务费 ¥200",
@@ -117,6 +101,14 @@ const VENUE_SCOUT = {
     "是否赠送 LED/投影/音响", "是否提供舞台", "是否提供试菜", "停车优惠政策",
     "定金比例", "退款政策", "档期保留时间", "布置限制（鲜花/背景板/气球等）",
   ],
+};
+
+// 成都答谢宴策划考察 —— 结构同 VENUE_SCOUT，往 hotels 里加条目即可（chosen:true = 标红已定）
+const PLANNER_SCOUT = {
+  title: "🎨&ensp;策划考察",
+  note: "2026.09",
+  medals: ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"],
+  hotels: [],
 };
 
 // 宾客名单 —— 条目写法：字符串 = 1 人；{ name, n: 人数, note: 备注 } = 多人/带备注
@@ -181,8 +173,9 @@ const GUEST_LIST = {
       });
       sec.appendChild(grid);
     }
-    // 酒店考察内容并进"地点"块
-    if (block.scout) sec.insertAdjacentHTML("beforeend", scoutHTML());
+    // 酒店考察并进"地点"块，策划考察并进"策划"块
+    if (block.scout) sec.insertAdjacentHTML("beforeend", scoutHTML(VENUE_SCOUT));
+    if (block.pscout) sec.insertAdjacentHTML("beforeend", scoutHTML(PLANNER_SCOUT));
     box.appendChild(sec);
   });
 
@@ -204,12 +197,12 @@ const GUEST_LIST = {
     ).join("");
   box.appendChild(gl);
 
-  function scoutHTML(){
-    const s = VENUE_SCOUT;
+  function scoutHTML(s){
+    if (!s.hotels.length) return `<div class="ckhead">${s.title}<span class="cknote">${s.note}</span></div><div class="gempty">待考察 📝</div>`;
     return `<div class="ckhead">${s.title}<span class="cknote">${s.note}</span></div>` +
       `<div class="hotels">` + s.hotels.map((h, hi) =>
-        `<div class="hotel">` +
-        `<div class="hname"><span class="hmedal">${s.medals[hi]}</span>${h.name}<span class="hrec">${h.rec}</span></div>` +
+        `<div class="hotel${h.chosen ? " chosen" : ""}">` +
+        `<div class="hname"><span class="hmedal">${s.medals[hi]}</span>${h.name}${h.chosen ? '<span class="hpick">已定 ✓</span>' : ""}<span class="hrec">${h.rec}</span></div>` +
         (h.photos ? `<div class="hphotos">${h.photos.map(p =>
           `<img src="${p.src}" alt="${p.alt}" title="${p.alt}" loading="lazy">`).join("")}</div>` : "") +
         `<div class="hmeta">${h.meta.map(m => {
@@ -227,7 +220,7 @@ const GUEST_LIST = {
         `<div class="hcons">${h.cons.map(c => `<span>❌ ${c}</span>`).join("")}</div>` +
         `</div>`).join("") +
       `</div>` +
-      `<div class="ckhead">📋&ensp;To Confirm</div>` +
-      `<div class="cklist">${s.checklist.map(c => `<div class="ck">□ ${c}</div>`).join("")}</div>`;
+      (s.checklist ? `<div class="ckhead">📋&ensp;To Confirm</div>` +
+        `<div class="cklist">${s.checklist.map(c => `<div class="ck">□ ${c}</div>`).join("")}</div>` : "");
   }
 })();
