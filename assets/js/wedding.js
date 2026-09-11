@@ -5,7 +5,7 @@ const WEDDING_PLAN = [
     title: "⏰&ensp;Time",
     color: "var(--cd)",
     venues: [
-      { city:"🐼 成都", date:"12.12 – 12.13（待定）" },
+      { city:"🐼 成都", date:"12.12 ✅" },
       { city:"❄️ 沈阳", date:"12.20 ✅" },
     ],
     sections: [],
