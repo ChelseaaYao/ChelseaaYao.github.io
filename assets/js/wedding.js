@@ -50,7 +50,7 @@ const VENUE_SCOUT = {
         { src: "../../assets/img/wedding/melia-lake.jpg",      alt: "临湖俯瞰" },
         { src: "../../assets/img/wedding/melia-courtyard.jpg", alt: "茶厅户外庭院" },
       ],
-      meta: ["档次 ⭐⭐⭐⭐⭐", "价格 $$$$", "LED ✅", "停车 ⭐⭐⭐⭐⭐"],
+      meta: ["档次 ⭐⭐⭐⭐⭐", "价格 $$$$$", "LED ✅", "停车 ⭐⭐⭐⭐⭐"],
       price: "宴席 ¥6200/桌起 · 包房 ¥800–850/间（带休息厅）",
       secs: [
         { h: "🏛️ 场地", items: ["独立宴会厅约 300㎡，容纳约 100 人 / 10 桌，层高 4.5m", "户外区 + 酒吧；私密性高，动线流畅"] },
