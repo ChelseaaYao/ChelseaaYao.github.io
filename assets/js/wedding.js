@@ -253,7 +253,7 @@ const GUEST_LIST = {
     const head = s.title ? `<div class="ckhead">${s.title}<span class="cknote">${s.note}</span></div>` : "";
     if (!s.hotels.length) return `${head}<div class="gempty">待考察 📝</div>`;
     const cmp = s.compare ? `<div class="ctabw"><table class="ctab"><thead><tr>${
-      s.compare.head.map((h, i) => `<th>${i ? `<i class="cdot c${i}"></i>` : ""}${h}</th>`).join("")}</tr></thead><tbody>${
+      s.compare.head.map((h, i) => `<th>${i ? `<span class="cchip c${i}"><i class="cdot"></i>${h}</span>` : h}</th>`).join("")}</tr></thead><tbody>${
       s.compare.rows.map(r => `<tr><td class="ci">${r[0]}</td>${
         r.slice(1).map(v => `<td class="${/^(未明确|未知)/.test(v) ? "mut" : ""}${/[★⭐]/.test(v) ? " star" : ""}">${v}</td>`).join("")}</tr>`).join("")
       }</tbody></table></div>` : "";
