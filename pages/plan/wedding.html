@@ -40,14 +40,22 @@
   .hotels{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;}
   .hotels.cols3{grid-template-columns:repeat(3,minmax(0,1fr));}
   /* 策划对比表 */
-  .ctabw{overflow-x:auto;margin:2px 0 18px;}
-  .ctab{width:100%;border-collapse:collapse;font-size:12.5px;min-width:640px;}
-  .ctab th{text-align:left;padding:8px 12px;font-size:11px;color:var(--muted);letter-spacing:.8px;
-    border-bottom:1px solid var(--line);white-space:nowrap;}
-  .ctab td{padding:7px 12px;border-bottom:1px dashed var(--line);vertical-align:top;line-height:1.5;}
+  .ctabw{overflow-x:auto;margin:2px 0 20px;border:1px solid var(--line);border-radius:14px;background:#2e323a;}
+  .ctab{width:100%;border-collapse:collapse;font-size:12.5px;min-width:680px;}
+  .ctab th{text-align:left;padding:12px 14px;font-family:var(--serif);font-size:13.5px;font-weight:700;
+    letter-spacing:.4px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.03);}
+  .ctab th:first-child{font-family:inherit;font-size:10.5px;font-weight:600;color:var(--muted);letter-spacing:1.2px;}
+  .ctab .cdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px;}
+  .ctab .cdot.c1{background:var(--cd);}
+  .ctab .cdot.c2{background:var(--sy);}
+  .ctab .cdot.c3{background:var(--dl);}
+  .ctab td{padding:8px 14px;border-bottom:1px dashed var(--line);vertical-align:top;line-height:1.55;}
+  .ctab tbody tr:nth-child(even) td{background:rgba(255,255,255,.022);}
+  .ctab tbody tr:hover td{background:rgba(255,255,255,.055);}
   .ctab tr:last-child td{border-bottom:none;}
-  .ctab td.ci{color:var(--muted);font-size:12px;white-space:nowrap;}
-  .ctab td.mut{color:var(--muted);opacity:.55;}
+  .ctab td.ci{color:var(--muted);font-size:11.5px;letter-spacing:.5px;white-space:nowrap;}
+  .ctab td.mut{color:var(--muted);opacity:.5;}
+  .ctab td.star{color:var(--bj);letter-spacing:2px;}
   @media (max-width:1000px){.hotels.cols3{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));}}
   .hotel{background:#2e323a;border:1px solid var(--line);border-radius:14px;padding:16px 18px 15px;}
   .hname{display:flex;align-items:baseline;gap:8px;
