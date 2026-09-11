@@ -20,12 +20,7 @@ const WEDDING_PLAN = [
     title: "🎨&ensp;Planning",
     color: "var(--jp)",
     pscout: true,   // 策划考察内容挂在这一块下面
-    sections: [
-      { name:"🎪&ensp;Decor",       items:["宴会布置", "流程安排", "花艺"] },
-      { name:"📷&ensp;Photography", items:["跟拍摄影师", "摄像（optional）"] },
-      { name:"👨‍👩‍👧‍👦&ensp;Guests",  items:["Guest List", "座位安排"] },
-      { name:"🍽️&ensp;Catering",    items:["菜单确认", "酒水饮料"] },
-    ],
+    sections: [],
   },
   {
     title: "👰&ensp;Wedding Photos",
