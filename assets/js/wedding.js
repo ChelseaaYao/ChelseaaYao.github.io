@@ -81,7 +81,7 @@ const VENUE_SCOUT = {
 // 成都答谢宴策划考察 —— 结构同 VENUE_SCOUT，往 hotels 里加条目即可（chosen:true = 标红已定）
 const PLANNER_SCOUT = {
   cls: "cols3",   // 三张卡并排
-  medals: ["🎨", "🎨", "🎨", "🎨", "🎨"],   // 还没分出胜负，统一图标不排名
+  medals: ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣"],   // 编号仅为录入顺序，不代表排名
   // 三家横向对比（明确说过的事实；未提到=未明确）
   compare: {
     head: ["对比项", "木朵拉｜康康", "一次心派对｜孙孙", "Winnie Wed｜文颖"],
