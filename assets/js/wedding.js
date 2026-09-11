@@ -294,7 +294,7 @@ const GUEST_LIST = {
     return head + cmp +
       `<div class="hotels${s.cls ? " " + s.cls : ""}">` + s.hotels.map((h, hi) =>
         `<div class="hotel${h.chosen ? " chosen" : ""}">` +
-        `<div class="hname"><span class="hmedal">${s.medals[hi]}</span>${h.name}${h.chosen ? '<span class="hpick">已定 ✓</span>' : ""}<span class="hrec">${h.rec}</span></div>` +
+        `<div class="hname"><span class="hmedal">${s.medals[hi]}</span>${h.name}${h.chosen ? '<span class="hpick">🥂 BOOKED</span>' : ""}<span class="hrec">${h.rec}</span></div>` +
         (h.photos ? `<div class="hphotos">${h.photos.map(p =>
           `<img src="${p.src}" alt="${p.alt}" title="${p.alt}" loading="lazy">`).join("")}</div>` : "") +
         `<div class="hmeta">${h.meta.map(m => {
