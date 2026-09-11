@@ -43,11 +43,11 @@
     font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.4px;}
   .hname .hmedal{flex:none;}
   .hname .hrec{flex:none;margin-left:auto;font-size:12px;}
-  /* 选定酒店：红色高亮 */
-  .hotel.chosen{border-color:var(--jp);box-shadow:0 0 0 1px var(--jp);}
-  .hotel.chosen .hname{color:var(--jp);}
-  .hname .hpick{flex:none;font-size:11px;font-weight:700;color:var(--jp);
-    border:1px solid var(--jp);border-radius:8px;padding:1px 8px;letter-spacing:1px;}
+  /* 选定条目：高亮卡片（暖金描边 + 微光底色） */
+  .hotel.chosen{border-color:var(--bj);box-shadow:0 0 0 1px var(--bj),0 0 18px rgba(224,165,58,.22);
+    background:linear-gradient(180deg,rgba(224,165,58,.10),rgba(224,165,58,.03)),#2e323a;}
+  .hname .hpick{flex:none;font-size:11px;font-weight:700;color:#22252a;background:var(--bj);
+    border-radius:8px;padding:2px 9px;letter-spacing:1px;}
   .hphotos{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:11px;}
   .hphotos img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;cursor:zoom-in;
     border-radius:8px;border:1px solid var(--line);transition:transform .25s;}
