@@ -113,7 +113,7 @@ const PLANNER_SCOUT = {
       ["化妆/婚纱", "未明确", "未明确", "可以推荐"],
       ["蛋糕甜品", "未明确", "可提供合作资源，另收费", "未明确"],
       ["伴手礼", "未明确", "明确不做", "婚礼物资可以协助/推荐"],
-      ["报价透明度", "★★", "★★★★", "★★★★★"],
+      ["报价透明度", "⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"],
     ],
   },
   hotels: [
@@ -289,7 +289,7 @@ const GUEST_LIST = {
     const cmp = s.compare ? `<div class="ctabw"><table class="ctab"><thead><tr>${
       s.compare.head.map((h, i) => `<th>${i ? `<i class="cdot c${i}"></i>` : ""}${h}</th>`).join("")}</tr></thead><tbody>${
       s.compare.rows.map(r => `<tr><td class="ci">${r[0]}</td>${
-        r.slice(1).map(v => `<td class="${/^(未明确|未知)/.test(v) ? "mut" : ""}${/★/.test(v) ? " star" : ""}">${v}</td>`).join("")}</tr>`).join("")
+        r.slice(1).map(v => `<td class="${/^(未明确|未知)/.test(v) ? "mut" : ""}${/[★⭐]/.test(v) ? " star" : ""}">${v}</td>`).join("")}</tr>`).join("")
       }</tbody></table></div>` : "";
     return head + cmp +
       `<div class="hotels${s.cls ? " " + s.cls : ""}">` + s.hotels.map((h, hi) =>
