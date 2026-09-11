@@ -86,8 +86,6 @@ const VENUE_SCOUT = {
 
 // 成都答谢宴策划考察 —— 结构同 VENUE_SCOUT，往 hotels 里加条目即可（chosen:true = 标红已定）
 const PLANNER_SCOUT = {
-  title: "🎨&ensp;策划考察",
-  note: "2026.09",
   medals: ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"],
   hotels: [
     {
@@ -225,8 +223,9 @@ const GUEST_LIST = {
   box.appendChild(gl);
 
   function scoutHTML(s){
-    if (!s.hotels.length) return `<div class="ckhead">${s.title}<span class="cknote">${s.note}</span></div><div class="gempty">待考察 📝</div>`;
-    return `<div class="ckhead">${s.title}<span class="cknote">${s.note}</span></div>` +
+    const head = s.title ? `<div class="ckhead">${s.title}<span class="cknote">${s.note}</span></div>` : "";
+    if (!s.hotels.length) return `${head}<div class="gempty">待考察 📝</div>`;
+    return head +
       `<div class="hotels">` + s.hotels.map((h, hi) =>
         `<div class="hotel${h.chosen ? " chosen" : ""}">` +
         `<div class="hname"><span class="hmedal">${s.medals[hi]}</span>${h.name}${h.chosen ? '<span class="hpick">已定 ✓</span>' : ""}<span class="hrec">${h.rec}</span></div>` +
