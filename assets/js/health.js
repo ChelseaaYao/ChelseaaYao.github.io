@@ -486,7 +486,7 @@
       const i = starts.length - 1 - ri;
       const dt = ddate(s.d);
       return `<div class="row"><span class="d">${dshow(s.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
-        <span class="n">🌸 ${s.days} days${cyc[i] ? ` · cycle ${cyc[i]} days` : ""}</span></div>`;
+        <span class="n">🌸&ensp;${s.days} days${cyc[i] ? `&emsp;·&emsp;cycle ${cyc[i]} days` : ""}</span></div>`;
     }).join("");
   }
 
