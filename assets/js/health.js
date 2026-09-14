@@ -155,7 +155,7 @@
     const draw = r => {
       const from = r === 1 ? dnum(last.d) - 92 * DAY : r === 2 ? dnum(last.d) - 30 * DAY : -Infinity;
       const w = document.getElementById("wchart");
-      w.innerHTML = chart(es.filter(e => dnum(e.d) >= from), goal, sdates, r === 2);
+      w.innerHTML = chart(es.filter(e => dnum(e.d) >= from), goal, sdates, r >= 1);   // 3M/30D 标最高最低点
       w.scrollLeft = w.scrollWidth;   // 移动端横滑时默认停在最新数据
     };
     draw(1);   // 默认近 3 月，全程太密
