@@ -189,6 +189,15 @@
       lgt.textContent = open ? "Hide details ▴" : "Details ▾";
     });
 
+    // Cycle 明细同款折叠
+    const pdt = document.getElementById("pd-toggle");
+    if (pdt) pdt.addEventListener("click", () => {
+      const w = document.getElementById("pd-wrap");
+      const open = w.style.display === "none";
+      w.style.display = open ? "" : "none";
+      pdt.textContent = open ? "Hide details ▴" : "Details ▾";
+    });
+
     // Logs 双开关：Weight / Workouts 各自独立点亮，亮谁显示谁，可同时显示（至少留一个）
     const ltSync = () => {
       const wOn = box.querySelector('.lt[data-p="w"]').classList.contains("on");
@@ -466,7 +475,19 @@
       ${cycleChips(starts)}
       <div class="chart-wrap">${periodTimeline(starts, cyc, nxt, today)}</div>
       <div class="legend"><span><i class="lo"></i>Fertile window</span><span><i class="lod"></i>Ovulation (est.)</span></div>
-      ${starts.length > 1 ? hormoneSection(starts) : ""}</div>`;
+      ${starts.length > 1 ? hormoneSection(starts) : ""}
+      <div class="lg-toggle" id="pd-toggle">Details ▾</div>
+      <div id="pd-wrap" style="display:none">${periodRows(starts, cyc)}</div></div>`;
+  }
+
+  // 经期明细列表（新→旧）：开始日期 + 持续天数 + 到下一次的周期长度
+  function periodRows(starts, cyc){
+    return starts.slice().reverse().map((s, ri) => {
+      const i = starts.length - 1 - ri;
+      const dt = ddate(s.d);
+      return `<div class="row"><span class="d">${dshow(s.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
+        <span class="n">🌸 ${s.days} days${cyc[i] ? ` · cycle ${cyc[i]} days` : ""}</span></div>`;
+    }).join("");
   }
 
   // ── 经期时间轴：横条长度=持续天数 + 间隔天数 + 今天线 + 预测幽灵块 ──
