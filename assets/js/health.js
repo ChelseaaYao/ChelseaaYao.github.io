@@ -480,14 +480,16 @@
       <div id="pd-wrap" style="display:none">${periodRows(starts, cyc)}</div></div>`;
   }
 
-  // 经期明细列表（新→旧）：开始日期 + 持续天数 + 到下一次的周期长度
+  // 经期明细表（新→旧）：开始日期 | 持续天数 | 到下一次的周期长度
   function periodRows(starts, cyc){
-    return starts.slice().reverse().map((s, ri) => {
-      const i = starts.length - 1 - ri;
-      const dt = ddate(s.d);
-      return `<div class="row"><span class="d">${dshow(s.d)}<span class="dwk">${WK[dt.getDay()]}</span></span>
-        <span class="n">🌸&ensp;${s.days} days${cyc[i] ? `&emsp;·&emsp;cycle ${cyc[i]} days` : ""}</span></div>`;
-    }).join("");
+    return `<div class="tblw"><table class="mtbl"><thead><tr><th class="l">DATE</th><th>PERIOD</th><th>CYCLE</th></tr></thead><tbody>` +
+      starts.slice().reverse().map((s, ri) => {
+        const i = starts.length - 1 - ri;
+        const dt = ddate(s.d);
+        return `<tr><td class="l">${dshow(s.d)}<span class="dwk">${WK[dt.getDay()]}</span></td>
+          <td>${s.days} days</td>
+          <td${cyc[i] ? "" : ' class="mut"'}>${cyc[i] ? cyc[i] + " days" : "–"}</td></tr>`;
+      }).join("") + `</tbody></table></div>`;
   }
 
   // ── 经期时间轴：横条长度=持续天数 + 间隔天数 + 今天线 + 预测幽灵块 ──
