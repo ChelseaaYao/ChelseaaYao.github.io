@@ -487,8 +487,8 @@
         const i = starts.length - 1 - ri;
         const dt = ddate(s.d);
         return `<tr><td class="l">${dshow(s.d)}<span class="dwk">${WK[dt.getDay()]}</span></td>
-          <td><b>${s.days}</b> days</td>
-          <td${cyc[i] ? "" : ' class="mut"'}>${cyc[i] ? cyc[i] + " days" : "–"}</td></tr>`;
+          <td><b>${s.days}</b> <span class="un">days</span></td>
+          <td${cyc[i] ? "" : ' class="mut"'}>${cyc[i] ? `${cyc[i]} <span class="un">days</span>` : "–"}</td></tr>`;
       }).join("") + `</tbody></table></div>`;
   }
 
