@@ -464,12 +464,11 @@
     const mx = x(bmi), tx = Math.min(Math.max(mx, 26), W - 26);
     s += `<path d="M${mx - 5},${BY - 9} L${mx + 5},${BY - 9} L${mx},${BY - 2} Z" fill="#fff" opacity=".92"/>
       <text x="${tx}" y="${BY - 15}" text-anchor="middle" font-size="13" font-weight="700" fill="${z[2]}">${f1(bmi)}</text>`;
-    // 总结：正常体重范围 / 距正常差多少 / 与上月均值比
-    const gap = bmi < 18.5
-      ? `💪 +${f1(18.5 * h2 - last.w)} kg to reach normal (BMI 18.5)`
-      : bmi <= 24
-        ? `✅ Within normal — ${f1(last.w - 18.5 * h2)} kg above the lower bound`
-        : `🏃 −${f1(last.w - 24 * h2)} kg to reach normal (BMI 24)`;
+    // 总结：正常体重范围 / 今年最高最低 / 与上月均值比
+    const yr = last.d.split(".")[0];
+    const yes = es.filter(e => e.d.startsWith(yr + "."));
+    const eHi = yes.reduce((b, e) => e.w > b.w ? e : b);
+    const eLo = yes.reduce((b, e) => e.w < b.w ? e : b);
     const byMk = {};
     es.forEach(e => {
       const mk = e.d.split(".").slice(0, 2).join(".");
@@ -487,7 +486,8 @@
       <svg class="chart nosc" viewBox="0 0 ${W} ${H}">${s}</svg>
       <div class="bmi-sum">
         <div>🎯 Normal range 18.5–24 ≈ ${f1(18.5 * h2)}–${f1(24 * h2)} kg at ${p.height}cm</div>
-        <div>${gap}</div>
+        <div>📈 ${yr} high ${f1(eHi.w / h2)} · ${f2(eHi.w)} kg (${dshow(eHi.d)})</div>
+        <div>📉 ${yr} low ${f1(eLo.w / h2)} · ${f2(eLo.w)} kg (${dshow(eLo.d)})</div>
         ${mom}
       </div>`);
   }
