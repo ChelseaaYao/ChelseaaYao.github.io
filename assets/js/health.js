@@ -395,7 +395,8 @@
       const aw = ws.reduce((s, v) => s + v, 0) / ws.length;
       return { mk, aw, v: calc(aw) };
     });
-    const W = 640, H = 260, L = 46, R = 26, T = 30, B = 34;
+    // 画布宽随屏宽（弹窗内实际可用宽度），避免手机上整体缩放字变太小
+    const W = Math.max(300, Math.min(640, (window.innerWidth || 640) - 90)), H = 260, L = 46, R = 26, T = 30, B = 34;
     let lo = Math.min(...pts.map(o => o.v)), hi = Math.max(...pts.map(o => o.v));
     const pad = Math.max((hi - lo) * 0.2, 5); lo -= pad; hi += pad;
     const x = i => L + (pts.length === 1 ? 0 : i / (pts.length - 1) * (W - L - R));
@@ -446,8 +447,8 @@
     const bmi = last.w / h2;
     const zones = [[15, 18.5, "#7ba7e0", "Underweight"], [18.5, 24, "#7ec99a", "Normal"]];
     const z = zones.find(zn => bmi < zn[1]) || zones[zones.length - 1];
-    // 量表：只显示 15–24（偏瘦 + 正常），游标标当前值
-    const W = 620, H = 96, L = 10, R = 10, BY = 40, BH = 14;
+    // 量表：只显示 15–24（偏瘦 + 正常），游标标当前值；画布宽随屏宽
+    const W = Math.max(300, Math.min(620, (window.innerWidth || 620) - 90)), H = 96, L = 10, R = 10, BY = 40, BH = 14;
     const x = v => L + (Math.min(Math.max(v, 15), 24) - 15) / (24 - 15) * (W - L - R);
     // 整条一个圆角（clip），分段之间齐平不留缝
     let s = `<defs><clipPath id="bmiclip"><rect x="${L}" y="${BY}" width="${W - L - R}" height="${BH}" rx="${BH / 2}"/></clipPath></defs><g clip-path="url(#bmiclip)">`;
@@ -485,7 +486,6 @@
       <div class="bmi-big" style="color:${z[2]}"><b>${f1(bmi)}</b><span>${z[3]}</span></div>
       <svg class="chart nosc" viewBox="0 0 ${W} ${H}">${s}</svg>
       <div class="bmi-sum">
-        <div>🎯 Normal range 18.5–24 ≈ ${f1(18.5 * h2)}–${f1(24 * h2)} kg at ${p.height}cm</div>
         <div>📈 ${yr} high ${f1(eHi.w / h2)} · ${f2(eHi.w)} kg (${dshow(eHi.d)})</div>
         <div>📉 ${yr} low ${f1(eLo.w / h2)} · ${f2(eLo.w)} kg (${dshow(eLo.d)})</div>
         ${mom}
