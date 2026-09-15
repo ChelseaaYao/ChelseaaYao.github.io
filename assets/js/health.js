@@ -105,8 +105,10 @@
     if (avg30p !== null) hs.push(stat("30-DAY AVG", f2(avg30), `prev 30d ${f2(avg30p)} ( ${avg30 - avg30p <= 0 ? "⬇️" : "⬆️"} ${f2(Math.abs(avg30 - avg30p))} )`, avg30 - avg30p));
     if (goal) hs.push(stat("TO GOAL", f1(last.w - goal), `goal ${f1(goal)} ${unit}`));
     if (DATA.bmi) hs.push(stat("BMI", f1(DATA.bmi), DATA.bmi < 18.5 ? "underweight <18.5" : DATA.bmi < 24 ? "normal 18.5–24" : "over 24"));
-    if (DATA.bmr) hs.push(stat("BMR", `${DATA.bmr}<i>kcal</i>`, `${DATA.profile.height}cm · ${DATA.profile.age}y`));
+    if (DATA.bmr) hs.push(stat("BMR", `${DATA.bmr}<i>kcal</i>`, `${DATA.profile.height}cm · ${DATA.profile.age}y`, undefined, "bmr-tile"));
     document.getElementById("hs-row").innerHTML = hs.join("");
+    const bmrTile = document.getElementById("bmr-tile");
+    if (bmrTile) bmrTile.addEventListener("click", openBmrModal);
 
     // ── 对比行：较前一天 / 上周同日 / 上月同日（无当日记录时取往前最近一条）──
     const cmpBox = document.getElementById("cmp-row");
@@ -350,10 +352,60 @@
     return sel.length ? sel.reduce((s, e) => s + e.w, 0) / sel.length : null;
   }
 
-  function stat(label, num, sub, tone){
+  function stat(label, num, sub, tone, id){
     const cls = tone === undefined ? "" : tone <= 0 ? " good" : " bad";
-    return `<div class="hs"><div class="hs-label">${label}</div>
+    return `<div class="hs"${id ? ` id="${id}"` : ""}><div class="hs-label">${label}</div>
       <div class="hs-num${cls}">${num}</div><div class="hs-sub">${sub}</div></div>`;
+  }
+
+  // ── BMR 弹窗：点 BMR 大数字打开，折线=每条体重记录推导的基础代谢 ──
+  function bmrChart(){
+    const p = RAW.profile;
+    const es = RAW.entries.slice().sort((a, b) => dnum(a.d) - dnum(b.d));   // 始终按 kg 原始体重算
+    if (es.length < 2) return '<div class="empty">Not enough data</div>';
+    const bmr = w => Math.round(10 * w + 6.25 * p.height - 5 * p.age - (p.sex === "F" ? 161 : -5));
+    const vs = es.map(e => bmr(e.w));
+    const W = 640, H = 260, L = 46, R = 14, T = 18, B = 32;
+    const t0 = dnum(es[0].d), t1 = dnum(es[es.length - 1].d), span = Math.max(t1 - t0, 1);
+    let lo = Math.min(...vs), hi = Math.max(...vs);
+    const pad = Math.max((hi - lo) * 0.15, 4); lo -= pad; hi += pad;
+    const x = t => L + (t - t0) / span * (W - L - R);
+    const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+    let s = "";
+    for (let i = 0; i <= 4; i++){
+      const v = lo + (hi - lo) * i / 4, yy = y(v);
+      s += `<line x1="${L}" y1="${yy}" x2="${W - R}" y2="${yy}" class="grid"/>
+            <text x="${L - 7}" y="${yy + 3}" text-anchor="end" class="ax">${Math.round(v)}</text>`;
+    }
+    for (let d = new Date(t0); d.getTime() <= t1; d.setDate(d.getDate() + 1)){
+      if (d.getDate() !== 1) continue;
+      const xx = x(d.getTime());
+      s += `<line x1="${xx}" y1="${T}" x2="${xx}" y2="${H - B}" class="grid"/>
+            <text x="${xx}" y="${H - 14}" text-anchor="middle" class="ax">${MN[d.getMonth() + 1]}</text>`;
+    }
+    s += `<polyline class="line" points="${es.map((e, i) => `${x(dnum(e.d)).toFixed(1)},${y(vs[i]).toFixed(1)}`).join(" ")}"/>`;
+    if (es.length <= 80) es.forEach((e, i) => { s += `<circle cx="${x(dnum(e.d))}" cy="${y(vs[i])}" r="2.6" class="dot"/>`; });
+    es.forEach((e, i) => {
+      s += `<circle cx="${x(dnum(e.d))}" cy="${y(vs[i])}" r="8" class="hit" data-tip="${dshow(e.d)}&#10;<b class='tv'>${vs[i]} kcal</b>"/>`;
+    });
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}">${s}</svg>`;
+  }
+
+  function openBmrModal(){
+    const old = document.getElementById("bmr-modal");
+    if (old) old.remove();
+    const m = document.createElement("div");
+    m.className = "modal";
+    m.id = "bmr-modal";
+    m.innerHTML = `<div class="mbox"><span class="mb-x">✕</span>
+      <h3>🔥&ensp;BMR Trend<span class="gp">kcal / day · ${RAW.profile.height}cm · ${RAW.profile.age}y</span></h3>
+      <div class="chart-wrap">${bmrChart()}</div></div>`;
+    box.appendChild(m);   // 挂在 box 里，悬浮提示才能生效
+    const close = () => m.remove();
+    m.addEventListener("click", e => { if (e.target === m || e.target.classList.contains("mb-x")) close(); });
+    document.addEventListener("keydown", function esc(e){
+      if (e.key === "Escape"){ close(); document.removeEventListener("keydown", esc); }
+    });
   }
 
   // ── 体重折线图：x 按真实日期，叠加 7 次滑动均线、经期标记、目标虚线 ──
