@@ -113,8 +113,6 @@
     const tiles = [
       ["avg-tile", "⚖️&ensp;Avg Weight", `monthly avg · ${unit}`,
         w => unit === "斤" ? w * 2 : w, f2, ` ${unit}`, false],
-      ["bmi-tile", "📐&ensp;BMI Trend", `${p0.height}cm · underweight <18.5`,
-        w => w / Math.pow(p0.height / 100, 2), f1, "", true],
       ["bmr-tile", "🔥&ensp;BMR Trend", `kcal / day · ${p0.height}cm · ${p0.age}y`,
         w => 10 * w + 6.25 * p0.height - 5 * p0.age - (p0.sex === "F" ? 161 : -5), v => Math.round(v), " kcal", true],
     ];
@@ -122,6 +120,8 @@
       const el = document.getElementById(id);
       if (el) el.addEventListener("click", () => openMetricModal(...args));
     });
+    const bmiTile = document.getElementById("bmi-tile");
+    if (bmiTile) bmiTile.addEventListener("click", openBmiModal);
 
     // ── 对比行：较前一天 / 上周同日 / 上月同日（无当日记录时取往前最近一条）──
     const cmpBox = document.getElementById("cmp-row");
@@ -408,21 +408,78 @@
     return `<svg class="chart" viewBox="0 0 ${W} ${H}">${s}</svg>`;
   }
 
-  function openMetricModal(title, gp, calc, fmt, tipUnit, showAvg){
+  // 弹窗壳：✕ / 点遮罩 / Esc 关闭（挂在 box 里，悬浮提示才能生效）
+  function showModal(inner){
     const old = document.getElementById("metric-modal");
     if (old) old.remove();
     const m = document.createElement("div");
     m.className = "modal";
     m.id = "metric-modal";
-    m.innerHTML = `<div class="mbox"><span class="mb-x">✕</span>
-      <h3>${title}<span class="gp">${gp}</span></h3>
-      <div class="chart-wrap">${metricChart(calc, fmt, tipUnit, showAvg)}</div></div>`;
-    box.appendChild(m);   // 挂在 box 里，悬浮提示才能生效
+    m.innerHTML = `<div class="mbox"><span class="mb-x">✕</span>${inner}</div>`;
+    box.appendChild(m);
     const close = () => m.remove();
     m.addEventListener("click", e => { if (e.target === m || e.target.classList.contains("mb-x")) close(); });
     document.addEventListener("keydown", function esc(e){
       if (e.key === "Escape"){ close(); document.removeEventListener("keydown", esc); }
     });
+  }
+
+  function openMetricModal(title, gp, calc, fmt, tipUnit, showAvg){
+    showModal(`<h3>${title}<span class="gp">${gp}</span></h3>
+      <div class="chart-wrap">${metricChart(calc, fmt, tipUnit, showAvg)}</div>`);
+  }
+
+  // ── BMI 弹窗：量表 bar（游标=当前 BMI）+ 总结 ──
+  function openBmiModal(){
+    const p = RAW.profile, h2 = Math.pow(p.height / 100, 2);
+    const es = RAW.entries.slice().sort((a, b) => dnum(a.d) - dnum(b.d));
+    const last = es[es.length - 1];
+    const bmi = last.w / h2;
+    const zones = [[15, 18.5, "#7ba7e0", "Underweight"], [18.5, 24, "#7ec99a", "Normal"],
+                   [24, 28, "#e0a53a", "Overweight"], [28, 32, "#f4949a", "Obese"]];
+    const z = zones.find(zn => bmi < zn[1]) || zones[zones.length - 1];
+    // 量表：15–32 区间四色分段，游标标当前值
+    const W = 620, H = 96, L = 10, R = 10, BY = 40, BH = 14;
+    const x = v => L + (Math.min(Math.max(v, 15), 32) - 15) / (32 - 15) * (W - L - R);
+    let s = "";
+    zones.forEach(([a, b, c], i) => {
+      s += `<rect x="${(x(a) + (i ? 1 : 0)).toFixed(1)}" y="${BY}" width="${(x(b) - x(a) - (i < 3 ? 2 : 0)).toFixed(1)}" height="${BH}" rx="7" fill="${c}" opacity=".82"/>`;
+    });
+    [18.5, 24, 28].forEach(v => {
+      s += `<text x="${x(v)}" y="${BY + BH + 16}" text-anchor="middle" class="ax">${v}</text>`;
+    });
+    zones.forEach(([a, b, , lab]) => {
+      s += `<text x="${(x(a) + x(b)) / 2}" y="${BY + BH + 32}" text-anchor="middle" class="ax" font-size="9" opacity=".7">${lab}</text>`;
+    });
+    const mx = x(bmi), tx = Math.min(Math.max(mx, 26), W - 26);
+    s += `<path d="M${mx - 5},${BY - 9} L${mx + 5},${BY - 9} L${mx},${BY - 2} Z" fill="#fff" opacity=".92"/>
+      <text x="${tx}" y="${BY - 15}" text-anchor="middle" font-size="13" font-weight="700" fill="${z[2]}">${f1(bmi)}</text>`;
+    // 总结：正常体重范围 / 距正常差多少 / 与上月均值比
+    const gap = bmi < 18.5
+      ? `💪 +${f1(18.5 * h2 - last.w)} kg to reach normal (BMI 18.5)`
+      : bmi <= 24
+        ? `✅ Within normal — ${f1(last.w - 18.5 * h2)} kg above the lower bound`
+        : `🏃 −${f1(last.w - 24 * h2)} kg to reach normal (BMI 24)`;
+    const byMk = {};
+    es.forEach(e => {
+      const mk = e.d.split(".").slice(0, 2).join(".");
+      (byMk[mk] = byMk[mk] || []).push(e.w);
+    });
+    const mks = Object.keys(byMk).sort((a, b) => dnum(a + ".1") - dnum(b + ".1"));
+    let mom = "";
+    if (mks.length > 1){
+      const avg = mk => byMk[mk].reduce((s2, v) => s2 + v, 0) / byMk[mk].length;
+      const d = (avg(mks[mks.length - 1]) - avg(mks[mks.length - 2])) / h2;
+      mom = `<div>📅 vs last month avg&ensp;${Math.abs(d) < 0.05 ? "→ flat" : `${d < 0 ? "⬇️" : "⬆️"} ${f1(Math.abs(d))}`}</div>`;
+    }
+    showModal(`<h3>📐&ensp;BMI<span class="gp">${p.height}cm · ${dshow(last.d)}</span></h3>
+      <div class="bmi-big" style="color:${z[2]}"><b>${f1(bmi)}</b><span>${z[3]}</span></div>
+      <svg class="chart nosc" viewBox="0 0 ${W} ${H}">${s}</svg>
+      <div class="bmi-sum">
+        <div>🎯 Normal range 18.5–24 ≈ ${f1(18.5 * h2)}–${f1(24 * h2)} kg at ${p.height}cm</div>
+        <div>${gap}</div>
+        ${mom}
+      </div>`);
   }
 
   // ── 体重折线图：x 按真实日期，叠加 7 次滑动均线、经期标记、目标虚线 ──
