@@ -102,13 +102,26 @@
     // ── 顶部大数字 ──
     const hs = [];
     hs.push(stat("CURRENT", `${f2(last.w)}<i>${unit}</i>`, dshow(last.d)));
-    if (avg30p !== null) hs.push(stat("30-DAY AVG", f2(avg30), `prev 30d ${f2(avg30p)} ( ${avg30 - avg30p <= 0 ? "⬇️" : "⬆️"} ${f2(Math.abs(avg30 - avg30p))} )`, avg30 - avg30p));
+    if (avg30p !== null) hs.push(stat("30-DAY AVG", f2(avg30), `prev 30d ${f2(avg30p)} ( ${avg30 - avg30p <= 0 ? "⬇️" : "⬆️"} ${f2(Math.abs(avg30 - avg30p))} )`, avg30 - avg30p, "avg-tile"));
     if (goal) hs.push(stat("TO GOAL", f1(last.w - goal), `goal ${f1(goal)} ${unit}`));
-    if (DATA.bmi) hs.push(stat("BMI", f1(DATA.bmi), DATA.bmi < 18.5 ? "underweight <18.5" : DATA.bmi < 24 ? "normal 18.5–24" : "over 24"));
+    if (DATA.bmi) hs.push(stat("BMI", f1(DATA.bmi), DATA.bmi < 18.5 ? "underweight <18.5" : DATA.bmi < 24 ? "normal 18.5–24" : "over 24", undefined, "bmi-tile"));
     if (DATA.bmr) hs.push(stat("BMR", `${DATA.bmr}<i>kcal</i>`, `${DATA.profile.height}cm · ${DATA.profile.age}y`, undefined, "bmr-tile"));
     document.getElementById("hs-row").innerHTML = hs.join("");
-    const bmrTile = document.getElementById("bmr-tile");
-    if (bmrTile) bmrTile.addEventListener("click", openBmrModal);
+
+    // 大数字点开 → 按月折线弹窗（月均体重换算）
+    const p0 = RAW.profile;
+    const tiles = [
+      ["avg-tile", "⚖️&ensp;Avg Weight", `monthly avg · ${unit}`,
+        w => unit === "斤" ? w * 2 : w, f2, ` ${unit}`, false],
+      ["bmi-tile", "📐&ensp;BMI Trend", `${p0.height}cm · underweight <18.5`,
+        w => w / Math.pow(p0.height / 100, 2), f1, "", true],
+      ["bmr-tile", "🔥&ensp;BMR Trend", `kcal / day · ${p0.height}cm · ${p0.age}y`,
+        w => 10 * w + 6.25 * p0.height - 5 * p0.age - (p0.sex === "F" ? 161 : -5), v => Math.round(v), " kcal", true],
+    ];
+    tiles.forEach(([id, ...args]) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("click", () => openMetricModal(...args));
+    });
 
     // ── 对比行：较前一天 / 上周同日 / 上月同日（无当日记录时取往前最近一条）──
     const cmpBox = document.getElementById("cmp-row");
@@ -358,14 +371,11 @@
       <div class="hs-num${cls}">${num}</div><div class="hs-sub">${sub}</div></div>`;
   }
 
-  // ── BMR 弹窗：点 BMR 大数字打开，折线=每月平均体重推导的基础代谢，数值直接标在点上 ──
-  function bmrChart(){
-    const p = RAW.profile;
-    const es = RAW.entries;   // 始终按 kg 原始体重算
-    const bmr = w => Math.round(10 * w + 6.25 * p.height - 5 * p.age - (p.sex === "F" ? 161 : -5));
-    // 按月聚合：月均体重 → BMR
+  // ── 指标弹窗（BMR/BMI 共用）：折线=每月平均体重换算的指标值，数值直接标在点上 ──
+  function metricChart(calc, fmt, tipUnit, showAvg = true){
+    // 按月聚合：月均体重（始终 kg 原始值）→ 指标
     const byMk = {};
-    es.forEach(e => {
+    RAW.entries.forEach(e => {
       const mk = e.d.split(".").slice(0, 2).join(".");
       (byMk[mk] = byMk[mk] || []).push(e.w);
     });
@@ -374,7 +384,7 @@
     const pts = mks.map(mk => {
       const ws = byMk[mk];
       const aw = ws.reduce((s, v) => s + v, 0) / ws.length;
-      return { mk, aw, v: bmr(aw) };
+      return { mk, aw, v: calc(aw) };
     });
     const W = 640, H = 260, L = 46, R = 26, T = 30, B = 34;
     let lo = Math.min(...pts.map(o => o.v)), hi = Math.max(...pts.map(o => o.v));
@@ -385,28 +395,28 @@
     for (let i = 0; i <= 4; i++){
       const v = lo + (hi - lo) * i / 4, yy = y(v);
       s += `<line x1="${L}" y1="${yy}" x2="${W - R}" y2="${yy}" class="grid"/>
-            <text x="${L - 7}" y="${yy + 3}" text-anchor="end" class="ax">${Math.round(v)}</text>`;
+            <text x="${L - 7}" y="${yy + 3}" text-anchor="end" class="ax">${fmt(v)}</text>`;
     }
     s += `<polyline class="line" points="${pts.map((o, i) => `${x(i).toFixed(1)},${y(o.v).toFixed(1)}`).join(" ")}"/>`;
     pts.forEach((o, i) => {
       const [yy, mm] = o.mk.split(".");
       s += `<circle cx="${x(i)}" cy="${y(o.v)}" r="3.2" class="dot"/>
-        <text x="${x(i)}" y="${y(o.v) - 10}" text-anchor="middle" class="ax" font-weight="700">${o.v}</text>
+        <text x="${x(i)}" y="${y(o.v) - 10}" text-anchor="middle" class="ax" font-weight="700">${fmt(o.v)}</text>
         <text x="${x(i)}" y="${H - 14}" text-anchor="middle" class="ax">${MN[+mm]}</text>
-        <circle cx="${x(i)}" cy="${y(o.v)}" r="12" class="hit" data-tip="${MN[+mm]} ${yy}&#10;<b class='tv'>${o.v} kcal</b>&#10;avg ${f2(o.aw)} kg"/>`;
+        <circle cx="${x(i)}" cy="${y(o.v)}" r="12" class="hit" data-tip="${MN[+mm]} ${yy}&#10;<b class='tv'>${fmt(o.v)}${tipUnit}</b>${showAvg ? `&#10;avg ${f2(o.aw)} kg` : ""}"/>`;
     });
     return `<svg class="chart" viewBox="0 0 ${W} ${H}">${s}</svg>`;
   }
 
-  function openBmrModal(){
-    const old = document.getElementById("bmr-modal");
+  function openMetricModal(title, gp, calc, fmt, tipUnit, showAvg){
+    const old = document.getElementById("metric-modal");
     if (old) old.remove();
     const m = document.createElement("div");
     m.className = "modal";
-    m.id = "bmr-modal";
+    m.id = "metric-modal";
     m.innerHTML = `<div class="mbox"><span class="mb-x">✕</span>
-      <h3>🔥&ensp;BMR Trend<span class="gp">kcal / day · ${RAW.profile.height}cm · ${RAW.profile.age}y</span></h3>
-      <div class="chart-wrap">${bmrChart()}</div></div>`;
+      <h3>${title}<span class="gp">${gp}</span></h3>
+      <div class="chart-wrap">${metricChart(calc, fmt, tipUnit, showAvg)}</div></div>`;
     box.appendChild(m);   // 挂在 box 里，悬浮提示才能生效
     const close = () => m.remove();
     m.addEventListener("click", e => { if (e.target === m || e.target.classList.contains("mb-x")) close(); });
