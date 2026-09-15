@@ -128,8 +128,17 @@
     if (cmpBox){
       const atOrBefore = t => { let r = null; for (const e of es){ if (dnum(e.d) <= t) r = e; else break; } return r; };
       const lastT = dnum(last.d);
+      // VS LAST WEEK 严格对齐星期几：上周同日没记录就再往前一周，最多回看 10 周
+      const sameWeekday = () => {
+        for (let k = 1; k <= 10; k++){
+          const dt = ddate(last.d); dt.setDate(dt.getDate() - 7 * k);
+          const hit = es.find(e => dnum(e.d) === dt.getTime());
+          if (hit) return hit;
+        }
+        return null;
+      };
       cmpBox.innerHTML = [["VS YESTERDAY", atOrBefore(lastT - DAY)],
-          ["VS LAST WEEK", atOrBefore(lastT - 7 * DAY)],
+          ["VS LAST WEEK", sameWeekday()],
           ["VS LAST MONTH", atOrBefore(lastT - 30 * DAY)]]
         .filter(([, e]) => e)
         .map(([k, e]) => {
