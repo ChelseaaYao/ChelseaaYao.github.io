@@ -444,17 +444,18 @@
     const es = RAW.entries.slice().sort((a, b) => dnum(a.d) - dnum(b.d));
     const last = es[es.length - 1];
     const bmi = last.w / h2;
-    const zones = [[15, 18.5, "#7ba7e0", "Underweight"], [18.5, 24, "#7ec99a", "Normal"],
-                   [24, 28, "#e0a53a", "Overweight"], [28, 32, "#f4949a", "Obese"]];
+    const zones = [[15, 18.5, "#7ba7e0", "Underweight"], [18.5, 24, "#7ec99a", "Normal"]];
     const z = zones.find(zn => bmi < zn[1]) || zones[zones.length - 1];
-    // 量表：15–32 区间四色分段，游标标当前值
+    // 量表：只显示 15–24（偏瘦 + 正常），游标标当前值
     const W = 620, H = 96, L = 10, R = 10, BY = 40, BH = 14;
-    const x = v => L + (Math.min(Math.max(v, 15), 32) - 15) / (32 - 15) * (W - L - R);
-    let s = "";
-    zones.forEach(([a, b, c], i) => {
-      s += `<rect x="${(x(a) + (i ? 1 : 0)).toFixed(1)}" y="${BY}" width="${(x(b) - x(a) - (i < 3 ? 2 : 0)).toFixed(1)}" height="${BH}" rx="7" fill="${c}" opacity=".82"/>`;
+    const x = v => L + (Math.min(Math.max(v, 15), 24) - 15) / (24 - 15) * (W - L - R);
+    // 整条一个圆角（clip），分段之间齐平不留缝
+    let s = `<defs><clipPath id="bmiclip"><rect x="${L}" y="${BY}" width="${W - L - R}" height="${BH}" rx="${BH / 2}"/></clipPath></defs><g clip-path="url(#bmiclip)">`;
+    zones.forEach(([a, b, c]) => {
+      s += `<rect x="${x(a).toFixed(1)}" y="${BY}" width="${(x(b) - x(a)).toFixed(1)}" height="${BH}" fill="${c}" opacity=".82"/>`;
     });
-    [18.5, 24, 28].forEach(v => {
+    s += `</g>`;
+    [18.5, 24].forEach(v => {
       s += `<text x="${x(v)}" y="${BY + BH + 16}" text-anchor="middle" class="ax">${v}</text>`;
     });
     zones.forEach(([a, b, , lab]) => {
