@@ -358,18 +358,28 @@
       <div class="hs-num${cls}">${num}</div><div class="hs-sub">${sub}</div></div>`;
   }
 
-  // ── BMR 弹窗：点 BMR 大数字打开，折线=每条体重记录推导的基础代谢 ──
+  // ── BMR 弹窗：点 BMR 大数字打开，折线=每月平均体重推导的基础代谢，数值直接标在点上 ──
   function bmrChart(){
     const p = RAW.profile;
-    const es = RAW.entries.slice().sort((a, b) => dnum(a.d) - dnum(b.d));   // 始终按 kg 原始体重算
-    if (es.length < 2) return '<div class="empty">Not enough data</div>';
+    const es = RAW.entries;   // 始终按 kg 原始体重算
     const bmr = w => Math.round(10 * w + 6.25 * p.height - 5 * p.age - (p.sex === "F" ? 161 : -5));
-    const vs = es.map(e => bmr(e.w));
-    const W = 640, H = 260, L = 46, R = 14, T = 18, B = 32;
-    const t0 = dnum(es[0].d), t1 = dnum(es[es.length - 1].d), span = Math.max(t1 - t0, 1);
-    let lo = Math.min(...vs), hi = Math.max(...vs);
-    const pad = Math.max((hi - lo) * 0.15, 4); lo -= pad; hi += pad;
-    const x = t => L + (t - t0) / span * (W - L - R);
+    // 按月聚合：月均体重 → BMR
+    const byMk = {};
+    es.forEach(e => {
+      const mk = e.d.split(".").slice(0, 2).join(".");
+      (byMk[mk] = byMk[mk] || []).push(e.w);
+    });
+    const mks = Object.keys(byMk).sort((a, b) => dnum(a + ".1") - dnum(b + ".1"));
+    if (mks.length < 2) return '<div class="empty">Not enough data</div>';
+    const pts = mks.map(mk => {
+      const ws = byMk[mk];
+      const aw = ws.reduce((s, v) => s + v, 0) / ws.length;
+      return { mk, aw, v: bmr(aw) };
+    });
+    const W = 640, H = 260, L = 46, R = 26, T = 30, B = 34;
+    let lo = Math.min(...pts.map(o => o.v)), hi = Math.max(...pts.map(o => o.v));
+    const pad = Math.max((hi - lo) * 0.2, 5); lo -= pad; hi += pad;
+    const x = i => L + (pts.length === 1 ? 0 : i / (pts.length - 1) * (W - L - R));
     const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
     let s = "";
     for (let i = 0; i <= 4; i++){
@@ -377,16 +387,13 @@
       s += `<line x1="${L}" y1="${yy}" x2="${W - R}" y2="${yy}" class="grid"/>
             <text x="${L - 7}" y="${yy + 3}" text-anchor="end" class="ax">${Math.round(v)}</text>`;
     }
-    for (let d = new Date(t0); d.getTime() <= t1; d.setDate(d.getDate() + 1)){
-      if (d.getDate() !== 1) continue;
-      const xx = x(d.getTime());
-      s += `<line x1="${xx}" y1="${T}" x2="${xx}" y2="${H - B}" class="grid"/>
-            <text x="${xx}" y="${H - 14}" text-anchor="middle" class="ax">${MN[d.getMonth() + 1]}</text>`;
-    }
-    s += `<polyline class="line" points="${es.map((e, i) => `${x(dnum(e.d)).toFixed(1)},${y(vs[i]).toFixed(1)}`).join(" ")}"/>`;
-    if (es.length <= 80) es.forEach((e, i) => { s += `<circle cx="${x(dnum(e.d))}" cy="${y(vs[i])}" r="2.6" class="dot"/>`; });
-    es.forEach((e, i) => {
-      s += `<circle cx="${x(dnum(e.d))}" cy="${y(vs[i])}" r="8" class="hit" data-tip="${dshow(e.d)}&#10;<b class='tv'>${vs[i]} kcal</b>"/>`;
+    s += `<polyline class="line" points="${pts.map((o, i) => `${x(i).toFixed(1)},${y(o.v).toFixed(1)}`).join(" ")}"/>`;
+    pts.forEach((o, i) => {
+      const [yy, mm] = o.mk.split(".");
+      s += `<circle cx="${x(i)}" cy="${y(o.v)}" r="3.2" class="dot"/>
+        <text x="${x(i)}" y="${y(o.v) - 10}" text-anchor="middle" class="ax" font-weight="700">${o.v}</text>
+        <text x="${x(i)}" y="${H - 14}" text-anchor="middle" class="ax">${MN[+mm]}</text>
+        <circle cx="${x(i)}" cy="${y(o.v)}" r="12" class="hit" data-tip="${MN[+mm]} ${yy}&#10;<b class='tv'>${o.v} kcal</b>&#10;avg ${f2(o.aw)} kg"/>`;
     });
     return `<svg class="chart" viewBox="0 0 ${W} ${H}">${s}</svg>`;
   }
