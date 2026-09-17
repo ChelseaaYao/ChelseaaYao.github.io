@@ -161,7 +161,7 @@
       </h2><div class="chart-wrap" id="wchart"></div>
       <div class="legend"><span class="lgt on" data-s="w"><i class="lw"></i>Weight</span><span class="lgt on" data-s="m"><i class="lm"></i>7-pt avg</span>${starts.length ? '<span class="lgt on" data-s="p"><i class="lp"></i>Period</span>' : ""}${goal ? '<span><i class="lg"></i>Goal</span>' : ""}</div></div>
       <div id="mcard">${monthCard(es, +last.d.split(".")[0])}</div>
-      <div class="card"><h2>📋&ensp;<span class="calm-cur" id="calm-cur"></span>
+      <div class="card"><h2>📋&ensp;<span class="calm-cur" id="calm-cur"></span><span class="calnav"><span class="cn" id="cal-prev" title="Previous month">▲</span><span class="cn" id="cal-next" title="Next month">▼</span></span>
         <span class="gp" id="lg-count">${es.length} entries</span>
         <span class="rtabs" style="margin-left:14px"><span class="lt on" data-p="w">Weight</span><span class="lt" data-p="k">Workouts</span></span></h2>
         <div id="calbox"></div>
@@ -290,6 +290,7 @@
           drawRecs(curMk);
           drawStats(curMk);
           setLab(curMk);
+          syncNav();
         }
       }, 120);
     });
@@ -299,18 +300,32 @@
     fitCal();
     const el0 = sc.querySelector(`.calmonth[data-mk="${mk0}"]`);
     if (el0) sc.scrollTop = el0.offsetTop;
-    box.querySelectorAll(".mt").forEach(el => el.addEventListener("click", () => {
-      const mk = el.dataset.m;
+    // 切到指定月（点月份标签 / 标题旁 ▲▼ 共用）：mk 为空 = All，只刷清单统计不动月历
+    const prevBtn = document.getElementById("cal-prev"), nextBtn = document.getElementById("cal-next");
+    const syncNav = () => {
+      const i = months.indexOf(curMk);
+      prevBtn.classList.toggle("off", i <= 0);
+      nextBtn.classList.toggle("off", i >= months.length - 1);
+    };
+    const gotoMk = mk => {
       setTab(mk);
       drawRecs(mk);
       drawStats(mk);   // All（mk 为空）= 全量统计
       if (mk){
         curMk = mk;
         setLab(mk);
+        syncNav();
         const t = sc.querySelector(`.calmonth[data-mk="${mk}"]`);
         if (t){ lockUntil = Date.now() + 800; sc.scrollTo({ top: t.offsetTop, behavior: "smooth" }); }
       }
-    }));
+    };
+    box.querySelectorAll(".mt").forEach(el => el.addEventListener("click", () => gotoMk(el.dataset.m)));
+    // 鼠标滚轮不翻月历（页面滚动时容易误滚进来），滚轮直接转交给页面；触屏滑动照常翻月
+    sc.addEventListener("wheel", e => { e.preventDefault(); window.scrollBy(e.deltaX, e.deltaY); }, { passive: false });
+    // ▲ 上一月 / ▼ 下一月：桌面端唯一的翻月方式（除底部月份胶囊）
+    prevBtn.addEventListener("click", () => { const i = months.indexOf(curMk); if (i > 0) gotoMk(months[i - 1]); });
+    nextBtn.addEventListener("click", () => { const i = months.indexOf(curMk); if (i < months.length - 1) gotoMk(months[i + 1]); });
+    syncNav();
 
     initTip();
   }

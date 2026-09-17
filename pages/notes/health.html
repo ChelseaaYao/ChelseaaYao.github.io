@@ -271,6 +271,13 @@
   .calm-cur .cy{display:inline-block;color:var(--muted);font-size:14px;margin-left:8px;}
   .calm-cur.roll .cm,.calm-cur.roll .cy{animation:rolldown .3s ease;}
   @keyframes rolldown{from{transform:translateY(-80%);opacity:0}to{transform:translateY(0);opacity:1}}
+  /* 标题旁 ▲▼ 翻月按钮：不靠滚轮也能翻月，到头变灰 */
+  .calnav{display:inline-flex;gap:6px;margin-left:14px;align-self:center;}
+  .calnav .cn{width:22px;height:22px;line-height:21px;text-align:center;font-size:9px;
+    color:var(--muted);border:1px solid var(--line);border-radius:50%;cursor:pointer;user-select:none;
+    transition:color .15s ease,border-color .15s ease;}
+  .calnav .cn:hover{color:var(--cd);border-color:var(--cd);}
+  .calnav .cn.off{opacity:.3;pointer-events:none;}
   /* 星期栏固定在滚动区外，永远不动 */
   .calweek{margin-top:2px;border-bottom:1px solid var(--line);}
 
