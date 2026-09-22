@@ -47,40 +47,28 @@ const FLIGHT_GROUPS = [
   },
   {
     route: "🐼 成都 → 🌴 LAX",
-    date: "1.1 / 1.2 出发 · 当天到 LA 🏠",
+    date: "1.3 出发 · 当天到 LA 🏠 · 天府 TFU 出发",
     options: [
       {
         airline:"Sichuan Airlines", code:"3U", color:"#c0392b", logo:"../../assets/icons/airlines/3U.png", flight:"3U3837",
-        dep:"23:00", depAp:"TFU", arr:"19:30", arrAp:"LAX", depD:"1.1", arrD:"1.1",
-        dur:"12h 30m", stop:"直飞",
-        tags:["⚠️ 常晚点 30+ 分钟"],
-        day:"1.1.2027 Friday",
-        fares:[
-          { name:"Economy", perks:"🎒 随身 ×1 免费 · 🧳 首件托运需付费 · plus one ➕ $200",
-            prices:[{ on:"7.30", price:1283 }], pick:false },
+        dep:"22:00", depAp:"TFU", arr:"19:00", arrAp:"LAX", depD:"1.3", arrD:"1.3",
+        dur:"13h 00m", stop:"直飞",
+        tags:["✅ 已出票 · 9.22","⚠️ 常晚点 30+ 分钟"],
+        pick:true,
+        day:"1.3.2027 Sunday",
+        segments:[
+          { dep:"22:00", depD:"1.3", depAp:"成都天府国际机场（TFU）T1",
+            arr:"19:00", arrD:"1.3", arrAp:"洛杉矶国际机场（LAX）TB",
+            dur:"13h 00m", info:"3U3837 · 经济舱 O · Airbus A350 · 直飞" },
         ],
-      },
-      {
-        airline:"Cathay Pacific", code:"CX", color:"#006564", logo:"../../assets/icons/airlines/CX.png", flight:"CX917 ➡️ CX884",
-        dep:"08:15", depAp:"CTU", arr:"09:15", arrAp:"LAX", depD:"1.1", arrD:"1.1",
-        dur:"17h 00m",
-        tags:["转机 HKG · 停留 1h 35m","🛫 双流 CTU 出发","⚠️ CX884 常晚点 30+ 分钟"],
-        day:"1.1.2027 Friday",
-        fares:[
-          { name:"Economy", perks:"🎒 随身 ×1 免费 · 🧳 首件托运免费",
-            prices:[{ on:"7.30", price:1132 }], pick:false },
-        ],
-      },
-      {
-        airline:"Cathay Pacific", code:"CX", color:"#006564", logo:"../../assets/icons/airlines/CX.png", flight:"CX987 ➡️ CX882",
-        dep:"14:30", depAp:"CTU", arr:"16:20", arrAp:"LAX", depD:"1.2", arrD:"1.2",
-        dur:"17h 50m",
-        tags:["转机 HKG · 停留 2h 35m","🛫 双流 CTU 出发"],
-        day:"1.2.2027 Saturday",
-        fares:[
-          { name:"Economy", perks:"🎒 随身 ×1 免费 · 🧳 首件托运免费",
-            prices:[{ on:"7.30", price:1296 }], pick:false },
-        ],
+        baggage:{
+          note:"客票行李额 1PC · 单件 ≤ 23 kg 为川航国际经济舱标准",
+          items:[
+            { icon:"🎒", name:"Personal item", allow:"×1", size:"随身小包" },
+            { icon:"👜", name:"Carry-on", allow:"1 × 5 kg", size:"55 × 40 × 20 cm" },
+            { icon:"🧳", name:"Checked", allow:"1 × 23 kg", size:"三边和 ≤ 158 cm" },
+          ],
+        },
       },
     ],
   },
