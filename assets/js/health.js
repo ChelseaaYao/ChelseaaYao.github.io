@@ -245,11 +245,14 @@
     // 月历：所有月份竖排在一个滚动容器里，上下滑动翻月；标签和下方清单跟随滚动位置
     document.getElementById("calbox").innerHTML =
       `<div class="calgrid calweek">${["M","T","W","T","F","S","S"].map((w, i) =>
-        `<div class="cw${i >= 5 ? " wk" : ""}">${w}</div>`).join("")}</div>` +
+        `<div class="cw${i >= 5 ? " wk" : ""}" data-dow="${(i + 1) % 7}" title="Every ${WK[(i + 1) % 7]} trend">${w}</div>`).join("")}</div>` +
       `<div class="calscroll" id="calscroll">${months.map(mk =>
         `<div class="calmonth" data-mk="${mk}">${calmini(es, starts, mk)}</div>`).join("")}</div>` +
       `<div id="calstats">${mstats(es, mk0)}</div>`;
     const sc = document.getElementById("calscroll");
+    // 点星期栏字母 → 该星期几历次体重的趋势弹窗
+    document.querySelectorAll("#calbox .cw").forEach(el =>
+      el.addEventListener("click", () => openWeekdayModal(es, +el.dataset.dow, unit)));
     const drawStats = mk => { document.getElementById("calstats").innerHTML = mstats(es, mk); };
     // 当前月标签（星期栏上方，固定不滚）：切月时向下翻入
     const curLab = document.getElementById("calm-cur");
@@ -452,6 +455,69 @@
   function openMetricModal(title, gp, calc, fmt, tipUnit, showAvg){
     showModal(`<h3>${title}<span class="gp">${gp}</span></h3>
       <div class="chart-wrap">${metricChart(calc, fmt, tipUnit, showAvg)}</div>`);
+  }
+
+  // ── 星期趋势弹窗：只取某个星期几的记录连成折线（看每周同一天的变化，排除周内波动）──
+  function openWeekdayModal(es, dow, unit, range){
+    const all = es.filter(e => ddate(e.d).getDay() === dow);
+    const name = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][dow];
+    // 范围切换 All / 3M（与 Weight Trend 同口径：最后一条记录往前 92 天）；3M 不够两条就退回 All
+    if (range === undefined) range = all.filter(e => dnum(e.d) >= dnum(es[es.length - 1].d) - 92 * DAY).length >= 2 ? 1 : 0;
+    const sel = range === 1 ? all.filter(e => dnum(e.d) >= dnum(es[es.length - 1].d) - 92 * DAY) : all;
+    const tabs = `<span class="rtabs">${["All","3M"].map((t, i) => `<span class="rt${i === range ? " on" : ""}" data-r="${i}">${t}</span>`).join("")}</span>`;
+    const bindTabs = () => document.querySelectorAll("#metric-modal .rt").forEach(el =>
+      el.addEventListener("click", () => openWeekdayModal(es, dow, unit, +el.dataset.r)));
+    if (sel.length < 2){
+      showModal(`<h3>📆&ensp;Every ${name}${tabs}</h3><div class="empty">Not enough data</div>`);
+      bindTabs();
+      return;
+    }
+    const avg = sel.reduce((a, e) => a + e.w, 0) / sel.length;
+    const W = Math.max(300, Math.min(640, (window.innerWidth || 640) - 90)), H = 260, L = 46, R = 26, T = 30, B = 34;
+    let iHi = 0, iLo = 0;
+    sel.forEach((e, i) => { if (e.w > sel[iHi].w) iHi = i; if (e.w < sel[iLo].w) iLo = i; });
+    let lo = sel[iLo].w, hi = sel[iHi].w;
+    const pad = Math.max((hi - lo) * 0.2, 0.3); lo -= pad; hi += pad;
+    const x = i => L + i / (sel.length - 1) * (W - L - R);
+    const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+    let s = "";
+    for (let i = 0; i <= 4; i++){
+      const v = lo + (hi - lo) * i / 4, yy = y(v);
+      s += `<line x1="${L}" y1="${yy}" x2="${W - R}" y2="${yy}" class="grid"/>
+            <text x="${L - 7}" y="${yy + 3}" text-anchor="end" class="ax">${f1(v)}</text>`;
+    }
+    // 均值虚线
+    s += `<line x1="${L}" y1="${y(avg)}" x2="${W - R}" y2="${y(avg)}" class="avgline"/>`;
+    s += `<polyline class="line" points="${sel.map((e, i) => `${x(i).toFixed(1)},${y(e.w).toFixed(1)}`).join(" ")}"/>`;
+    // 点间距不够放数字（<40px，手机上更容易触发）就不逐点标数，只标最高/最低/最新；x 轴只在月份变化处标月名
+    const dense = (W - L - R) / (sel.length - 1) < 40;
+    let lastMk = "", lastLabX = -1e9;
+    sel.forEach((e, i) => {
+      const mk = e.d.split(".").slice(0, 2).join(".");
+      const tag = !dense || i === iHi || i === iLo || i === sel.length - 1;
+      s += `<circle cx="${x(i)}" cy="${y(e.w)}" r="${dense ? 2.6 : 3.2}" class="dot${i === iHi ? " bad" : i === iLo ? " good" : ""}"/>`;
+      if (tag) s += `<text x="${x(i)}" y="${y(e.w) + (i === iLo ? 16 : -10)}" text-anchor="middle" class="ax" font-weight="700">${f2(e.w)}</text>`;
+      if (mk !== lastMk){
+        lastMk = mk;
+        if (x(i) - lastLabX > 30){   // 月份标签相距太近就跳过，避免挤在一起
+          lastLabX = x(i);
+          s += `<text x="${x(i)}" y="${H - 14}" text-anchor="${i === 0 ? "start" : "middle"}" class="ax">${MN[+mk.split(".")[1]]}</text>`;
+        }
+      }
+      const prev = sel[i - 1];
+      s += `<circle cx="${x(i)}" cy="${y(e.w)}" r="12" class="hit" data-tip="${WK[dow]} ${dshow(e.d)}&#10;<b class='tv'>${f2(e.w)} ${unit}</b>${prev ? `&#10;vs prev ${WK[dow]} ${delta(e.w - prev.w)}` : ""}"/>`;
+    });
+    const first = sel[0], last = sel[sel.length - 1], prev = sel[sel.length - 2];
+    const eHi = sel[iHi], eLo = sel[iLo];
+    const arrow = d => Math.abs(d) < 0.005 ? "→ flat" : `${d < 0 ? "⬇️" : "⬆️"} ${f2(Math.abs(d))}`;
+    showModal(`<h3>📆&ensp;Every ${name}<span class="gp">${sel.length} logs · avg ${f2(avg)} ${unit} · ${dshow(first.d)} – ${dshow(last.d)}</span>${tabs}</h3>
+      <div class="chart-wrap"><svg class="chart" viewBox="0 0 ${W} ${H}">${s}</svg></div>
+      <div class="bmi-sum">
+        <div>📈 high ${f2(eHi.w)} (${dshow(eHi.d)}) · 📉 low ${f2(eLo.w)} (${dshow(eLo.d)})</div>
+        <div>🗓 vs last ${WK[dow]} (${dshow(prev.d)})&ensp;${arrow(last.w - prev.w)}</div>
+        <div>🚩 since first ${WK[dow]} (${dshow(first.d)})&ensp;${arrow(last.w - first.w)}</div>
+      </div>`);
+    bindTabs();
   }
 
   // ── BMI 弹窗：量表 bar（游标=当前 BMI）+ 总结 ──
