@@ -244,7 +244,7 @@
 
     // 月历：所有月份竖排在一个滚动容器里，上下滑动翻月；标签和下方清单跟随滚动位置
     document.getElementById("calbox").innerHTML =
-      `<div class="calgrid calweek">${["M","T","W","T","F","S","S"].map((w, i) =>
+      `<div class="calgrid calweek">${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map((w, i) =>
         `<div class="cw${i >= 5 ? " wk" : ""}" data-dow="${(i + 1) % 7}" title="Every ${WK[(i + 1) % 7]} trend">${w}</div>`).join("")}</div>` +
       `<div class="calscroll" id="calscroll">${months.map(mk =>
         `<div class="calmonth" data-mk="${mk}">${calmini(es, starts, mk)}</div>`).join("")}</div>` +
@@ -414,7 +414,7 @@
       return { mk, aw, v: calc(aw) };
     });
     // 画布宽随屏宽（弹窗内实际可用宽度），避免手机上整体缩放字变太小
-    const W = Math.max(300, Math.min(640, (window.innerWidth || 640) - 90)), H = 260, L = 46, R = 26, T = 30, B = 34;
+    const W = Math.max(300, Math.min(800, (window.innerWidth || 800) - 90)), H = W < 500 ? 280 : 340, L = 52, R = 28, T = 34, B = 38;
     let lo = Math.min(...pts.map(o => o.v)), hi = Math.max(...pts.map(o => o.v));
     const pad = Math.max((hi - lo) * 0.2, 5); lo -= pad; hi += pad;
     const x = i => L + (pts.length === 1 ? 0 : i / (pts.length - 1) * (W - L - R));
@@ -465,15 +465,28 @@
     if (range === undefined) range = all.filter(e => dnum(e.d) >= dnum(es[es.length - 1].d) - 92 * DAY).length >= 2 ? 1 : 0;
     const sel = range === 1 ? all.filter(e => dnum(e.d) >= dnum(es[es.length - 1].d) - 92 * DAY) : all;
     const tabs = `<span class="rtabs">${["All","3M"].map((t, i) => `<span class="rt${i === range ? " on" : ""}" data-r="${i}">${t}</span>`).join("")}</span>`;
-    const bindTabs = () => document.querySelectorAll("#metric-modal .rt").forEach(el =>
-      el.addEventListener("click", () => openWeekdayModal(es, dow, unit, +el.dataset.r)));
+    const nav = `<span class="calnav mb-navs"><span class="cn mb-nav prev" title="${WK[(dow + 6) % 7]}">‹</span><span class="cn mb-nav next" title="${WK[(dow + 1) % 7]}">›</span></span>`;
+    // 弹窗内交互：All/3M 切范围；左右 ‹ › 或键盘 ←→ 直接换到前/后一个星期几（范围保留）
+    const go = d => openWeekdayModal(es, (dow + d + 7) % 7, unit, range);
+    const bindTabs = () => {
+      document.querySelectorAll("#metric-modal .rt").forEach(el =>
+        el.addEventListener("click", () => openWeekdayModal(es, dow, unit, +el.dataset.r)));
+      const mb = document.querySelector("#metric-modal .mbox");
+      mb.querySelector(".mb-nav.prev").addEventListener("click", () => go(-1));
+      mb.querySelector(".mb-nav.next").addEventListener("click", () => go(1));
+      document.addEventListener("keydown", function nav(e){
+        if (!document.getElementById("metric-modal") || !document.querySelector("#metric-modal .mb-nav")){ document.removeEventListener("keydown", nav); return; }
+        if (e.key === "ArrowLeft"){ document.removeEventListener("keydown", nav); go(-1); }
+        else if (e.key === "ArrowRight"){ document.removeEventListener("keydown", nav); go(1); }
+      });
+    };
     if (sel.length < 2){
-      showModal(`<h3>📆&ensp;Every ${name}${tabs}</h3><div class="empty">Not enough data</div>`);
+      showModal(`<h3>📆&ensp;Every ${name}${nav}${tabs}</h3><div class="empty">Not enough data</div>`);
       bindTabs();
       return;
     }
     const avg = sel.reduce((a, e) => a + e.w, 0) / sel.length;
-    const W = Math.max(300, Math.min(640, (window.innerWidth || 640) - 90)), H = 260, L = 46, R = 26, T = 30, B = 34;
+    const W = Math.max(300, Math.min(800, (window.innerWidth || 800) - 90)), H = W < 500 ? 280 : 340, L = 52, R = 28, T = 34, B = 38;
     let iHi = 0, iLo = 0;
     sel.forEach((e, i) => { if (e.w > sel[iHi].w) iHi = i; if (e.w < sel[iLo].w) iLo = i; });
     let lo = sel[iLo].w, hi = sel[iHi].w;
@@ -496,7 +509,7 @@
       const mk = e.d.split(".").slice(0, 2).join(".");
       const tag = !dense || i === iHi || i === iLo || i === sel.length - 1;
       s += `<circle cx="${x(i)}" cy="${y(e.w)}" r="${dense ? 2.6 : 3.2}" class="dot${i === iHi ? " bad" : i === iLo ? " good" : ""}"/>`;
-      if (tag) s += `<text x="${x(i)}" y="${y(e.w) + (i === iLo ? 16 : -10)}" text-anchor="middle" class="ax" font-weight="700">${f2(e.w)}</text>`;
+      if (tag) s += `<text x="${x(i)}" y="${y(e.w) + (i === iLo ? 21 : -13)}" text-anchor="middle" class="ax pv">${f2(e.w)}</text>`;
       if (mk !== lastMk){
         lastMk = mk;
         if (x(i) - lastLabX > 30){   // 月份标签相距太近就跳过，避免挤在一起
@@ -510,7 +523,7 @@
     const first = sel[0], last = sel[sel.length - 1], prev = sel[sel.length - 2];
     const eHi = sel[iHi], eLo = sel[iLo];
     const arrow = d => Math.abs(d) < 0.005 ? "→ flat" : `${d < 0 ? "⬇️" : "⬆️"} ${f2(Math.abs(d))}`;
-    showModal(`<h3>📆&ensp;Every ${name}<span class="gp">${sel.length} logs · avg ${f2(avg)} ${unit} · ${dshow(first.d)} – ${dshow(last.d)}</span>${tabs}</h3>
+    showModal(`<h3>📆&ensp;Every ${name}${nav}<span class="gp">${sel.length} logs · avg ${f2(avg)} ${unit} · ${dshow(first.d)} – ${dshow(last.d)}</span>${tabs}</h3>
       <div class="chart-wrap"><svg class="chart" viewBox="0 0 ${W} ${H}">${s}</svg></div>
       <div class="bmi-sum">
         <div>📈 high ${f2(eHi.w)} (${dshow(eHi.d)}) · 📉 low ${f2(eLo.w)} (${dshow(eLo.d)})</div>
@@ -529,7 +542,7 @@
     const zones = [[15, 18.5, "#7ba7e0", "Underweight"], [18.5, 24, "#7ec99a", "Normal"]];
     const z = zones.find(zn => bmi < zn[1]) || zones[zones.length - 1];
     // 量表：只显示 15–24（偏瘦 + 正常），游标标当前值；画布宽随屏宽
-    const W = Math.max(300, Math.min(620, (window.innerWidth || 620) - 90)), H = 96, L = 10, R = 10, BY = 40, BH = 14;
+    const W = Math.max(300, Math.min(780, (window.innerWidth || 780) - 90)), H = 96, L = 10, R = 10, BY = 40, BH = 14;
     const x = v => L + (Math.min(Math.max(v, 15), 24) - 15) / (24 - 15) * (W - L - R);
     // 整条一个圆角（clip），分段之间齐平不留缝
     let s = `<defs><clipPath id="bmiclip"><rect x="${L}" y="${BY}" width="${W - L - R}" height="${BH}" rx="${BH / 2}"/></clipPath></defs><g clip-path="url(#bmiclip)">`;
