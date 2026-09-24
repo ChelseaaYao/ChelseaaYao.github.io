@@ -179,7 +179,7 @@
     const draw = r => {
       const from = r === 1 ? dnum(last.d) - 92 * DAY : r === 2 ? dnum(last.d) - 30 * DAY : -Infinity;
       const w = document.getElementById("wchart");
-      w.innerHTML = chart(es.filter(e => dnum(e.d) >= from), goal, sdates, r >= 1);   // 3M/30D 标最高最低点
+      w.innerHTML = chart(es.filter(e => dnum(e.d) >= from), goal, sdates, r >= 1, r === 2);   // 3M/30D 标最高最低点；30D 加均值基线
       w.scrollLeft = w.scrollWidth;   // 移动端横滑时默认停在最新数据
     };
     draw(1);   // 默认近 3 月，全程太密
@@ -587,7 +587,7 @@
   }
 
   // ── 体重折线图：x 按真实日期，叠加 7 次滑动均线、经期标记、目标虚线 ──
-  function chart(es, goal, starts, extremes){
+  function chart(es, goal, starts, extremes, avgBase){
     if (es.length < 2) return '<div class="empty">Not enough data in range</div>';
     const W = 720, H = 310, L = 46, R = 16, T = 20, B = 36;
     const t0 = dnum(es[0].d), t1 = dnum(es[es.length - 1].d), span = Math.max(t1 - t0, 1);
@@ -625,6 +625,12 @@
     // 目标线
     if (goal) s += `<line x1="${L}" y1="${y(goal)}" x2="${W - R}" y2="${y(goal)}" class="goalln"/>
       <text x="${W - R}" y="${y(goal) - 5}" text-anchor="end" class="goal-lab">🎯 ${f1(goal)}</text>`;
+    // 30D 视图：区间平均体重基线（虚线 + 右端标数）
+    if (avgBase){
+      const avg = es.reduce((a, e) => a + e.w, 0) / es.length, ya = y(avg);
+      s += `<line x1="${L}" y1="${ya.toFixed(1)}" x2="${W - R}" y2="${ya.toFixed(1)}" class="avgln"/>
+            <text x="${L + 4}" y="${(ya + 12).toFixed(1)}" text-anchor="start" class="avglab">avg ${f2(avg)}</text>`;
+    }
     // 折线下方渐变面积
     const pts = es.map(e => `${x(dnum(e.d)).toFixed(1)},${y(e.w).toFixed(1)}`);
     s = `<defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
