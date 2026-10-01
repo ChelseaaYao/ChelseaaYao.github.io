@@ -16,7 +16,7 @@
     ? window.GATE.json(new URL(`${f}.enc`, base))
     : fetch(new URL(f, base)).then(r => r.json());
 
-  const f1 = n => (Math.round(n * 10) / 10) + "";
+  const f1 = n => typeof n === "number" ? (Math.round(n * 10) / 10) + "" : n;   // 围度可填文字（如 "弹力腰"）原样显示
   const TOPK = [["length","衣长"],["bust","胸围"],["waist","腰围"],["shoulder","肩宽"],["sleeve","袖长"],["hem","下摆围"],["cuff","袖口"]];
   const BTMK = [["waist","腰围"],["hips","臀围"],["rise","前裆"],["thigh","大腿围"],["hem","脚口"],["inseam","内长"],["length","裤长"]];
   const KEYS = {
