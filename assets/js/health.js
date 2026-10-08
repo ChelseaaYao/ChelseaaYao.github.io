@@ -4,6 +4,7 @@
 //   months:["2026-01",…] }
 // 月度文件：[{ d:"2026.1.9", w:49.9, n:"备注(可选)" }]
 // measurements.json（围度，cm）：[{ d:"2026.9.1", bust, waist, hips, thigh, arm, calf }]（可只记部分）
+// analysis.json（体重分析，Claude 每次录体重后重写）：{ d:"2026.10.2", lines:["**粗体**支持", …] }，渲染在 Monthly Avg 图下
 // 更新方式：Chelsea 把新的体重/经期记录发给 Claude，追加进当月 JSON 并维护 index.json，本文件不动
 (function(){
   const box = document.getElementById("health");
@@ -20,7 +21,8 @@
       Promise.all(idx.months.map(m => load(`${m}.json`))),
       load("workouts.json").catch(() => []),
       load("measurements.json").catch(() => []),
-    ]).then(([files, workouts, meas]) => { RAW = { ...idx, entries: files.flat(), workouts, meas }; render(); }))
+      load("analysis.json").catch(() => null),
+    ]).then(([files, workouts, meas, ana]) => { RAW = { ...idx, entries: files.flat(), workouts, meas, ana }; render(); }))
     .catch(() => {
       box.innerHTML = '<div class="empty">Failed to load — open via the website, not file:// 🌿</div>';
     });
@@ -885,7 +887,18 @@
     });
     return `<div class="card"><h2>📊&ensp;Monthly Avg
         <span class="rtabs">${tabs}</span></h2>
-      <div class="chart-wrap"><svg class="chart nosc" viewBox="0 0 ${W} ${H}">${s}</svg></div></div>`;
+      <div class="chart-wrap"><svg class="chart nosc" viewBox="0 0 ${W} ${H}">${s}</svg></div>${anaBlock()}</div>`;
+  }
+
+  // Monthly Avg 图下的体重分析（analysis.json），只在最新年份 tab 显示
+  function anaBlock(){
+    const a = RAW && RAW.ana;
+    if (!a || !a.lines || !a.lines.length) return "";
+    const [y, m, d] = a.d.split(".").map(Number);
+    const esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+    const md = t => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+    return `<div class="ana"><div class="ana-h">📝&ensp;Notes<span>${MN[m]} ${d}, ${y}</span></div>
+      <ul>${a.lines.map(l => `<li>${md(l)}</li>`).join("")}</ul></div>`;
   }
 
   // ── 迷你月历（参考薄荷健康）：周一开始，日期居中、体重在下，经期日期红字 ──
