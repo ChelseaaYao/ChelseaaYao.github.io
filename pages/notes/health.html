@@ -140,6 +140,7 @@
   .legend .lm{border-top-style:dashed;border-color:var(--fly);}
   .legend .lp{border-top-style:dashed;border-color:var(--jp);}
   .legend .lg{border-top-style:dashed;border-color:var(--sy);}
+  .legend .lk{border-color:#8b93e6;}
   /* 图例开关：色块是对应颜色的小拨杆，点击显隐对应线条 */
   .legend .lgt{cursor:pointer;user-select:none;transition:opacity .15s ease;}
   .legend .lgt i{width:21px;height:12px;border:none;border-radius:6px;position:relative;
@@ -150,6 +151,7 @@
   .legend .lgt.on .lw{background:var(--cd);}
   .legend .lgt.on .lm{background:var(--fly);}
   .legend .lgt.on .lp{background:var(--jp);}
+  .legend .lgt.on .lk{background:#8b93e6;}
   .legend .lgt:not(.on){opacity:.55;}
   .chart-wrap.hide-w .line,.chart-wrap.hide-w .area,.chart-wrap.hide-w .dot{display:none;}
   .chart-wrap.hide-w .extdot,.chart-wrap.hide-w .extlab{display:none;}
@@ -162,6 +164,10 @@
   .chart .extlab.lo{fill:#7ec99a;}
   .chart-wrap.hide-m .ma{display:none;}
   .chart-wrap.hide-p .pmark,.chart-wrap.hide-p .pflower{display:none;}
+  /* 周分割线（图例 Weeks 开关） */
+  .chart .wkmark{stroke:#8b93e6;stroke-width:1;opacity:.45;}
+  .chart .wklab{fill:#8b93e6;font-size:8.5px;opacity:.85;}
+  .chart-wrap.hide-k .wkmark,.chart-wrap.hide-k .wklab{display:none;}
 
   /* 生理周期卡 */
   .chips{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px;padding:12px 2px 10px;}

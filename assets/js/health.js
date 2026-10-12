@@ -160,8 +160,8 @@
     box.innerHTML = `
       <div class="card"><h2>📉&ensp;Weight Trend
         <span class="rtabs">${["All","3M","30D"].map((t, i) => `<span class="rt${i === 1 ? " on" : ""}" data-r="${i}">${t}</span>`).join("")}</span>
-      </h2><div class="chart-wrap" id="wchart"></div>
-      <div class="legend"><span class="lgt on" data-s="w"><i class="lw"></i>Weight</span><span class="lgt on" data-s="m"><i class="lm"></i>7-pt avg</span>${starts.length ? '<span class="lgt on" data-s="p"><i class="lp"></i>Period</span>' : ""}${goal ? '<span><i class="lg"></i>Goal</span>' : ""}</div></div>
+      </h2><div class="chart-wrap hide-k" id="wchart"></div>
+      <div class="legend"><span class="lgt on" data-s="w"><i class="lw"></i>Weight</span><span class="lgt on" data-s="m"><i class="lm"></i>7-pt avg</span>${starts.length ? '<span class="lgt on" data-s="p"><i class="lp"></i>Period</span>' : ""}<span class="lgt" data-s="k"><i class="lk"></i>Weeks</span>${goal ? '<span><i class="lg"></i>Goal</span>' : ""}</div></div>
       <div id="mcard">${monthCard(es, +last.d.split(".")[0])}</div>
       <div class="card"><h2>📋&ensp;<span class="calm-cur" id="calm-cur"></span><span class="calnav"><span class="cn" id="cal-prev" title="Previous month">▲</span><span class="cn" id="cal-next" title="Next month">▼</span></span>
         <span class="gp" id="lg-count">${es.length} entries</span>
@@ -613,6 +613,16 @@
       const xx = x(d.getTime());
       s += `<line x1="${xx}" y1="${T}" x2="${xx}" y2="${H - B}" class="grid"/>
             <text x="${xx}" y="${H - 20}" text-anchor="middle" class="ax">${short ? (d.getMonth() + 1) + "." + d.getDate() : MN[d.getMonth() + 1]}</text>`;
+    }
+    // 周分割线：每周一 0 点一条竖线，顶部标 M.D（图例 Weeks 开关，默认关）
+    // 标签：周距不足 30px（All 视图）不标；离经期 🌸 3 天内的也不标，避免压字
+    const wkLab = span / (7 * DAY) <= (W - L - R) / 30;
+    const nearP = t => starts.some(p => Math.abs(dnum(p) - t) <= 3 * DAY);
+    for (let d = new Date(t0); d.getTime() <= t1; d.setDate(d.getDate() + 1)){
+      if (d.getDay() !== 1 || d.getTime() === t0) continue;
+      const t = d.getTime(), xx = x(t).toFixed(1);
+      s += `<line x1="${xx}" y1="${T}" x2="${xx}" y2="${H - B}" class="wkmark"/>`;
+      if (wkLab && !nearP(t)) s += `<text x="${xx}" y="${T - 6}" text-anchor="middle" class="wklab">${d.getMonth() + 1}.${d.getDate()}</text>`;
     }
     // 经期开始标记
     starts.filter(p => dnum(p) >= t0 && dnum(p) <= t1).forEach(p => {
