@@ -23,6 +23,12 @@ const WEDDING_PLAN = [
     sections: [],
   },
   {
+    title: "💄&ensp;Makeup",
+    color: "var(--jp)",
+    mscout: true,   // 化妆师考察内容挂在这一块下面
+    sections: [],
+  },
+  {
     title: "👰&ensp;Wedding Photos",
     color: "var(--dl)",
     sections: [
@@ -161,6 +167,62 @@ const PLANNER_SCOUT = {
   ],
 };
 
+// 成都答谢宴化妆师考察（2026.10）—— 结构同 PLANNER_SCOUT；只记对方明确说过的事实
+const MAKEUP_SCOUT = {
+  title: "💄&ensp;成都化妆师",
+  note: "12.12 盛美利亚 · 新娘 + 新郎 + 妈妈单次妆造，不跟妆 · 12.5 回国，12.5–11 试妆",
+  cls: "cols2",
+  medals: ["1️⃣", "2️⃣", "3️⃣"],   // 编号仅为录入顺序，不代表排名
+  compare: {
+    head: ["对比项", "林夕造型｜Alice", "云熙造型｜Unhee"],
+    rows: [
+      ["👰 新娘妆造", "¥1,280", "¥1,280"],
+      ["🤵 新郎妆造", "¥200", "¥300"],
+      ["👩 妈妈妆造", "¥300", "¥300"],
+      ["💄 试妆", "✅ 免费一次", "¥400/次"],
+      ["💰 妆造 + 试妆总价", "¥1,780", "¥2,280"],
+      ["💵 定金", "¥400", "妆造订单金额的 50%"],
+      ["🚗 交通费", "往返车费另计", "往返车费另计"],
+      ["📍 三环外附加费", "未明确", "可能额外收费"],
+      ["⏰ 提前/延时收费", "待确认", "¥300/小时"],
+    ],
+  },
+  hotels: [
+    {
+      name: "林夕造型（Alice）", rec: "",
+      meta: ["总价 ¥1,780", "定金 ¥400", "试妆 免费一次", "交通 车费另计"],
+      price: "新娘 ¥1,280 · 新郎 ¥200 · 妈妈 ¥300 · 试妆免费一次",
+      secs: [
+        { h: "💬 要点", items: [
+          "三人妆造 + 试妆 ¥1,780，比云熙便宜 ¥500",
+          "三环外附加费、提前/延时收费还没说",
+        ] },
+      ],
+      pros: ["试妆免费", "定金固定 ¥400"],
+      cons: ["附加费 / 延时费待确认"],
+    },
+    {
+      name: "云熙造型（Unhee）", rec: "",
+      meta: ["总价 ¥2,280", "定金 订单 50%", "试妆 ¥400/次", "交通 车费另计"],
+      price: "新娘 ¥1,280 · 新郎 ¥300 · 妈妈 ¥300 · 试妆 ¥400/次",
+      secs: [
+        { h: "💬 要点", items: [
+          "三人妆造 ¥1,880 + 试妆 ¥400 = ¥2,280",
+          "定金为妆造订单金额 50%，计算基数待确认",
+          "提前 / 延时 ¥300/小时；三环外可能额外收费",
+        ] },
+      ],
+      pros: ["延时收费明确"],
+      cons: ["贵 ¥500", "试妆收费"],
+    },
+  ],
+  checklist: [
+    "林夕：三环外附加费、提前/延时收费",
+    "云熙：50% 定金的计算基数",
+    "两家：12.5–12.11 试妆档期",
+  ],
+};
+
 // 宾客名单 —— 条目写法：字符串 = 1 人；{ name, n: 人数, note: 备注 } = 多人/带备注
 const GUEST_LIST = {
   title: "👥&ensp;Guest List",
@@ -226,6 +288,7 @@ const GUEST_LIST = {
     // 酒店考察并进"地点"块，策划考察并进"策划"块
     if (block.scout) sec.insertAdjacentHTML("beforeend", scoutHTML(VENUE_SCOUT));
     if (block.pscout) sec.insertAdjacentHTML("beforeend", scoutHTML(PLANNER_SCOUT));
+    if (block.mscout) sec.insertAdjacentHTML("beforeend", scoutHTML(MAKEUP_SCOUT));
     box.appendChild(sec);
   });
 
@@ -253,7 +316,7 @@ const GUEST_LIST = {
     const cmp = s.compare ? `<div class="ctabw"><table class="ctab"><thead><tr>${
       s.compare.head.map((h, i) => `<th>${i ? `<span class="cchip">${h}</span>` : h}</th>`).join("")}</tr></thead><tbody>${
       s.compare.rows.map(r => `<tr><td class="ci">${r[0]}</td>${
-        r.slice(1).map(v => `<td class="${/^(未明确|未知)/.test(v) ? "mut" : ""}${/[★⭐]/.test(v) ? " star" : ""}">${v}</td>`).join("")}</tr>`).join("")
+        r.slice(1).map(v => `<td class="${/^(未明确|未知|待确认)/.test(v) ? "mut" : ""}${/[★⭐]/.test(v) ? " star" : ""}">${v}</td>`).join("")}</tr>`).join("")
       }</tbody></table></div>` : "";
     return head + cmp +
       `<div class="hotels${s.cls ? " " + s.cls : ""}">` + s.hotels.map((h, hi) =>

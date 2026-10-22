@@ -39,6 +39,7 @@
   /* 酒店考察卡 */
   .hotels{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;}
   .hotels.cols3{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .hotels.cols2{grid-template-columns:repeat(2,minmax(0,1fr));}
   /* 策划对比表 */
   .ctabw{overflow-x:auto;margin:2px 0 20px;border:1px solid var(--line);border-radius:14px;background:#2e323a;}
   .ctab{width:100%;border-collapse:collapse;font-size:12.5px;min-width:680px;}
@@ -53,7 +54,7 @@
   .ctab td.ci{color:var(--muted);font-size:11.5px;letter-spacing:.5px;white-space:nowrap;}
   .ctab td.mut{color:var(--muted);opacity:.5;}
   .ctab td.star{color:var(--bj);letter-spacing:2px;}
-  @media (max-width:1000px){.hotels.cols3{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));}}
+  @media (max-width:1000px){.hotels.cols3,.hotels.cols2{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));}}
   .hotel{background:#2e323a;border:1px solid var(--line);border-radius:14px;padding:16px 18px 15px;}
   .hname{display:flex;align-items:baseline;gap:8px;
     font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.4px;}
@@ -86,7 +87,7 @@
     padding:8px 12px;font-size:13px;font-weight:700;color:var(--bj);line-height:1.7;}
   .hprice .hpico{flex:none;}
   /* Planning 块（策划卡）：价格框跟块主题色（红），不用黄色 */
-  .hotels.cols3 .hprice{background:rgba(229,107,126,.07);border-color:rgba(229,107,126,.25);color:var(--jp);}
+  .hotels.cols3 .hprice,.hotels.cols2 .hprice{background:rgba(229,107,126,.07);border-color:rgba(229,107,126,.25);color:var(--jp);}
   .hprice .hplines{flex:1;}
   .hsh{font-size:13px;font-weight:700;letter-spacing:.3px;margin:11px 0 3px;}
   .hkey{font-size:13px;color:#b8bec8;line-height:1.65;padding-left:19px;position:relative;}
