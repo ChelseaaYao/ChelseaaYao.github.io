@@ -171,7 +171,6 @@ const PLANNER_SCOUT = {
 const MAKEUP_SCOUT = {
   title: "💄&ensp;成都化妆师",
   note: "12.12 盛美利亚 · 新娘 + 新郎 + 妈妈单次妆造，不跟妆 · 12.5 回国，12.5–11 试妆",
-  cls: "cols2",
   medals: ["1️⃣", "2️⃣", "3️⃣"],   // 编号仅为录入顺序，不代表排名
   compare: {
     head: ["对比项", "林夕造型｜Alice", "云熙造型｜Unhee"],
@@ -185,37 +184,10 @@ const MAKEUP_SCOUT = {
       ["🚗 交通费", "往返车费另计", "往返车费另计"],
       ["📍 三环外附加费", "未明确", "可能额外收费"],
       ["⏰ 提前/延时收费", "待确认", "¥300/小时"],
+      ["💸 价格差异", "✅ 便宜 ¥500", "贵 ¥500"],
     ],
   },
-  hotels: [
-    {
-      name: "林夕造型（Alice）", rec: "",
-      meta: ["总价 ¥1,780", "定金 ¥400", "试妆 免费一次", "交通 车费另计"],
-      price: "新娘 ¥1,280 · 新郎 ¥200 · 妈妈 ¥300 · 试妆免费一次",
-      secs: [
-        { h: "💬 要点", items: [
-          "三人妆造 + 试妆 ¥1,780，比云熙便宜 ¥500",
-          "三环外附加费、提前/延时收费还没说",
-        ] },
-      ],
-      pros: ["试妆免费", "定金固定 ¥400"],
-      cons: ["附加费 / 延时费待确认"],
-    },
-    {
-      name: "云熙造型（Unhee）", rec: "",
-      meta: ["总价 ¥2,280", "定金 订单 50%", "试妆 ¥400/次", "交通 车费另计"],
-      price: "新娘 ¥1,280 · 新郎 ¥300 · 妈妈 ¥300 · 试妆 ¥400/次",
-      secs: [
-        { h: "💬 要点", items: [
-          "三人妆造 ¥1,880 + 试妆 ¥400 = ¥2,280",
-          "定金为妆造订单金额 50%，计算基数待确认",
-          "提前 / 延时 ¥300/小时；三环外可能额外收费",
-        ] },
-      ],
-      pros: ["延时收费明确"],
-      cons: ["贵 ¥500", "试妆收费"],
-    },
-  ],
+  hotels: [],   // 只用表格，不出卡片
   checklist: [
     "林夕：三环外附加费、提前/延时收费",
     "云熙：50% 定金的计算基数",
@@ -312,14 +284,14 @@ const GUEST_LIST = {
 
   function scoutHTML(s){
     const head = s.title ? `<div class="ckhead">${s.title}<span class="cknote">${s.note}</span></div>` : "";
-    if (!s.hotels.length) return `${head}<div class="gempty">待考察 📝</div>`;
+    if (!s.hotels.length && !s.compare) return `${head}<div class="gempty">待考察 📝</div>`;
     const cmp = s.compare ? `<div class="ctabw"><table class="ctab"><thead><tr>${
       s.compare.head.map((h, i) => `<th>${i ? `<span class="cchip">${h}</span>` : h}</th>`).join("")}</tr></thead><tbody>${
       s.compare.rows.map(r => `<tr><td class="ci">${r[0]}</td>${
         r.slice(1).map(v => `<td class="${/^(未明确|未知|待确认)/.test(v) ? "mut" : ""}${/[★⭐]/.test(v) ? " star" : ""}">${v}</td>`).join("")}</tr>`).join("")
       }</tbody></table></div>` : "";
     return head + cmp +
-      `<div class="hotels${s.cls ? " " + s.cls : ""}">` + s.hotels.map((h, hi) =>
+      (s.hotels.length ? `<div class="hotels${s.cls ? " " + s.cls : ""}">` + s.hotels.map((h, hi) =>
         `<div class="hotel${h.chosen ? " chosen" : ""}">` +
         `<div class="hname"><span class="hmedal">${s.medals[hi]}</span>${h.name}${h.chosen ? '<span class="hpick">🥂 BOOKED</span>' : ""}<span class="hrec">${h.rec}</span></div>` +
         (h.photos ? `<div class="hphotos">${h.photos.map(p =>
@@ -338,7 +310,7 @@ const GUEST_LIST = {
         `<div class="hpros">${h.pros.map(p => `<span>✅ ${p}</span>`).join("")}</div>` +
         `<div class="hcons">${h.cons.map(c => `<span>❌ ${c}</span>`).join("")}</div>` +
         `</div>`).join("") +
-      `</div>` +
+      `</div>` : "") +
       (s.checklist ? `<div class="ckhead">📋&ensp;To Confirm</div>` +
         `<div class="cklist">${s.checklist.map(c => `<div class="ck">□ ${c}</div>`).join("")}</div>` : "");
   }
