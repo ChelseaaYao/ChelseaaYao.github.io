@@ -195,6 +195,25 @@ const MAKEUP_SCOUT = {
   ],
 };
 
+// 沈阳答谢宴化妆师（2026.09 微信）—— 只记对方明确说过的事实
+const MAKEUP_SCOUT_SY = {
+  title: "💄&ensp;沈阳化妆师",
+  note: "12.20 康莱德 · 答谢宴一套造型，不跟妆",
+  compare: {
+    head: ["对比项", "苏苏"],
+    rows: [
+      ["👰 新娘妆造", "¥1,580（一套造型，不跟妆）"],
+      ["🤵 新郎妆造", "✅ 赠送一个"],
+      ["💇 一套造型含", "头发 + 妆面，搭配饰品"],
+      ["💍 饰品", "留押金，归还饰品后退还"],
+      ["💄 试妆", "¥400/次，不免；答谢宴一般不试妆"],
+      ["📹 风格", "视频基本无美颜，肉眼看比视频更美"],
+    ],
+  },
+  hotels: [],
+  checklist: ["妈妈妆造价格", "交通费"],
+};
+
 // 宾客名单 —— 条目写法：字符串 = 1 人；{ name, n: 人数, note: 备注 } = 多人/带备注
 const GUEST_LIST = {
   title: "👥&ensp;Guest List",
@@ -260,7 +279,7 @@ const GUEST_LIST = {
     // 酒店考察并进"地点"块，策划考察并进"策划"块
     if (block.scout) sec.insertAdjacentHTML("beforeend", scoutHTML(VENUE_SCOUT));
     if (block.pscout) sec.insertAdjacentHTML("beforeend", scoutHTML(PLANNER_SCOUT));
-    if (block.mscout) sec.insertAdjacentHTML("beforeend", scoutHTML(MAKEUP_SCOUT));
+    if (block.mscout) sec.insertAdjacentHTML("beforeend", scoutHTML(MAKEUP_SCOUT) + scoutHTML(MAKEUP_SCOUT_SY));
     box.appendChild(sec);
   });
 
